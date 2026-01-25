@@ -7,3 +7,4 @@ execution_screenshots/
 videos/
 backend/temp/
 node_modules/
+.vs/
