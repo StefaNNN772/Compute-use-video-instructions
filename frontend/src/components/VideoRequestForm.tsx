@@ -23,7 +23,7 @@ const VideoRequestForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
 
   return (
     <div className="form-section">
-      <h2>📝 New Video Tutorial</h2>
+      <h2>New Video Tutorial</h2>
       
       <form onSubmit={handleSubmit}>
         <div className="input-group">
