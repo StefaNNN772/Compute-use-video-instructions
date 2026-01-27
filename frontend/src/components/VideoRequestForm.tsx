@@ -16,9 +16,9 @@ const VideoRequestForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
   };
 
   const examples = [
-    "Napravi C# konzolnu aplikaciju u Visual Studio koja ispisuje Hello World",
-    "Otvori Notepad, napisi Hello World i sacuvaj fajl",
-    "Otvori Chrome i idi na google.com"
+    "Create a C# console application in Visual Studio that prints Hello World",
+    "Open Notepad, write Hello World and save the file",
+    "Open Chrome and go to google.com"
   ];
 
   return (
@@ -48,7 +48,7 @@ const VideoRequestForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
               onClick={() => setInstruction(ex)}
               disabled={isLoading}
             >
-              {ex. substring(0, 40)}...
+              {ex.substring(0, 40)}...
             </button>
           ))}
         </div>
@@ -58,7 +58,7 @@ const VideoRequestForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
           className="btn btn-primary"
           disabled={isLoading || !instruction.trim()}
         >
-          {isLoading ? '⏳ Generating plan...' : '🚀 Generate Plan'}
+          {isLoading ? 'Generating plan...' : 'Generate Plan'}
         </button>
       </form>
     </div>
