@@ -3,7 +3,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix process: <http://www.daml.org/services/owl-s/1.2/Process.owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
 
 # ============================================================
 # ONTOLOGY DECLARATION
@@ -11,153 +11,510 @@
 
 <http://example.org/computer-use> rdf:type owl:Ontology ;
     rdfs:label "Computer Use Ontology"@en ;
-    rdfs:comment "Ontologija za automatizaciju desktop aplikacija i kreiranje video uputstava"@sr .
+    rdfs:comment "Ontology for desktop application automation and video tutorial creation"@en ;
+    dc:creator "Computer Use Project" ;
+    dc:description "This ontology defines concepts for automating desktop applications including browsers, IDEs, text editors, and various web services."@en ;
+    owl:versionInfo "2.0" .
 
 # ============================================================
-# CLASSES - Osnovne klase
+# CLASSES - Core Classes
 # ============================================================
 
-# === TASK (Kompozitni proces) ===
+# === TASK (Composite Process) ===
 :Task rdf:type owl:Class ;
-    rdfs:subClassOf process:CompositeProcess ;
     rdfs:label "Task"@en ;
-    rdfs:comment "Kompletan zadatak koji se sastoji od vise koraka"@sr .
+    rdfs:comment "A complete task consisting of multiple steps to achieve a goal"@en .
 
-# === STEP (Atomicni proces) ===
+# === STEP (Atomic Process) ===
 :Step rdf:type owl:Class ;
-    rdfs:subClassOf process:AtomicProcess ;
     rdfs:label "Step"@en ;
-    rdfs:comment "Pojedinacni korak u izvrsavanju zadatka"@sr .
+    rdfs:comment "A single atomic step in task execution"@en .
 
-# === ACTION TYPES ===
+# ============================================================
+# ACTION TYPES - All Available Actions
+# ============================================================
+
 :Action rdf:type owl:Class ;
     rdfs:label "Action"@en ;
-    rdfs:comment "Tip akcije koja se moze izvrsiti"@sr .
+    rdfs:comment "Base class for all executable actions"@en .
+
+# --- Mouse Actions ---
+:MouseAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Mouse Action"@en ;
+    rdfs:comment "Actions performed with the mouse"@en .
 
 :ClickAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
+    rdfs:subClassOf :MouseAction ;
     rdfs:label "Click Action"@en ;
-    rdfs:comment "Akcija klika misem"@sr .
+    rdfs:comment "Single left mouse button click"@en .
 
 :DoubleClickAction rdf:type owl:Class ;
-    rdfs:subClassOf :ClickAction ;
-    rdfs:label "Double Click Action"@en .
+    rdfs:subClassOf :MouseAction ;
+    rdfs:label "Double Click Action"@en ;
+    rdfs:comment "Double left mouse button click"@en .
 
 :RightClickAction rdf:type owl:Class ;
-    rdfs:subClassOf :ClickAction ;
-    rdfs:label "Right Click Action"@en .
-
-:TypeTextAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
-    rdfs:label "Type Text Action"@en ;
-    rdfs:comment "Akcija unosa teksta"@sr .
-
-:KeyPressAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
-    rdfs:label "Key Press Action"@en ;
-    rdfs:comment "Pritisak na taster"@sr .
-
-:KeyCombinationAction rdf:type owl:Class ;
-    rdfs:subClassOf :KeyPressAction ;
-    rdfs:label "Key Combination Action"@en ;
-    rdfs:comment "Kombinacija tastera (Ctrl+C, Alt+F4, itd.)"@sr .
-
-:WaitAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
-    rdfs:label "Wait Action"@en ;
-    rdfs:comment "Cekanje odredjeno vrijeme"@sr .
-
-:OpenApplicationAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
-    rdfs:label "Open Application Action"@en ;
-    rdfs:comment "Otvaranje aplikacije"@sr .
-
-:CloseApplicationAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
-    rdfs:label "Close Application Action"@en ;
-    rdfs:comment "Zatvaranje aplikacije"@sr .
-
-:ScrollAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
-    rdfs:label "Scroll Action"@en ;
-    rdfs:comment "Skrolovanje"@sr .
+    rdfs:subClassOf :MouseAction ;
+    rdfs:label "Right Click Action"@en ;
+    rdfs:comment "Right mouse button click for context menu"@en .
 
 :MoveMouseAction rdf:type owl:Class ;
-    rdfs:subClassOf :Action ;
+    rdfs:subClassOf :MouseAction ;
     rdfs:label "Move Mouse Action"@en ;
-    rdfs:comment "Pomjeranje misa"@sr .
+    rdfs:comment "Move mouse cursor to specific coordinates"@en .
 
-# === UI ELEMENTS ===
+:DragAndDropAction rdf:type owl:Class ;
+    rdfs:subClassOf :MouseAction ;
+    rdfs:label "Drag and Drop Action"@en ;
+    rdfs:comment "Drag element from one location to another"@en .
+
+:ScrollAction rdf:type owl:Class ;
+    rdfs:subClassOf :MouseAction ;
+    rdfs:label "Scroll Action"@en ;
+    rdfs:comment "Scroll up or down on the page"@en .
+
+# --- Keyboard Actions ---
+:KeyboardAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Keyboard Action"@en ;
+    rdfs:comment "Actions performed with the keyboard"@en .
+
+:TypeTextAction rdf:type owl:Class ;
+    rdfs:subClassOf :KeyboardAction ;
+    rdfs:label "Type Text Action"@en ;
+    rdfs:comment "Type text into an input field or editor"@en .
+
+:KeyPressAction rdf:type owl:Class ;
+    rdfs:subClassOf :KeyboardAction ;
+    rdfs:label "Key Press Action"@en ;
+    rdfs:comment "Press a single key (Enter, Escape, F5, etc.)"@en .
+
+:KeyCombinationAction rdf:type owl:Class ;
+    rdfs:subClassOf :KeyboardAction ;
+    rdfs:label "Key Combination Action"@en ;
+    rdfs:comment "Press multiple keys simultaneously (Ctrl+C, Alt+F4, Ctrl+Shift+S)"@en .
+
+# --- Application Actions ---
+:ApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Application Action"@en ;
+    rdfs:comment "Actions related to application lifecycle"@en .
+
+:OpenApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :ApplicationAction ;
+    rdfs:label "Open Application Action"@en ;
+    rdfs:comment "Launch an application"@en .
+
+:CloseApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :ApplicationAction ;
+    rdfs:label "Close Application Action"@en ;
+    rdfs:comment "Close an application"@en .
+
+:SwitchApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :ApplicationAction ;
+    rdfs:label "Switch Application Action"@en ;
+    rdfs:comment "Switch to another running application (Alt+Tab)"@en .
+
+:MinimizeApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :ApplicationAction ;
+    rdfs:label "Minimize Application Action"@en ;
+    rdfs:comment "Minimize application window"@en .
+
+:MaximizeApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :ApplicationAction ;
+    rdfs:label "Maximize Application Action"@en ;
+    rdfs:comment "Maximize application window"@en .
+
+# --- System Actions ---
+:SystemAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "System Action"@en ;
+    rdfs:comment "System-level actions"@en .
+
+:WaitAction rdf:type owl:Class ;
+    rdfs:subClassOf :SystemAction ;
+    rdfs:label "Wait Action"@en ;
+    rdfs:comment "Wait for a specified duration in seconds"@en .
+
+:ScreenshotAction rdf:type owl:Class ;
+    rdfs:subClassOf :SystemAction ;
+    rdfs:label "Screenshot Action"@en ;
+    rdfs:comment "Take a screenshot of the current screen"@en .
+
+:CopyAction rdf:type owl:Class ;
+    rdfs:subClassOf :SystemAction ;
+    rdfs:label "Copy Action"@en ;
+    rdfs:comment "Copy selected content to clipboard"@en .
+
+:PasteAction rdf:type owl:Class ;
+    rdfs:subClassOf :SystemAction ;
+    rdfs:label "Paste Action"@en ;
+    rdfs:comment "Paste content from clipboard"@en .
+
+# ============================================================
+# UI ELEMENTS - User Interface Components
+# ============================================================
+
 :UIElement rdf:type owl:Class ;
     rdfs:label "UI Element"@en ;
-    rdfs:comment "Element korisnickog interfejsa"@sr .
+    rdfs:comment "Base class for all user interface elements"@en .
+
+# --- Clickable Elements ---
+:ClickableElement rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Clickable Element"@en ;
+    rdfs:comment "Elements that can be clicked"@en .
 
 :Button rdf:type owl:Class ;
-    rdfs:subClassOf :UIElement ;
-    rdfs:label "Button"@en .
-
-:TextField rdf:type owl:Class ;
-    rdfs:subClassOf :UIElement ;
-    rdfs:label "Text Field"@en .
-
-:MenuItem rdf:type owl:Class ;
-    rdfs:subClassOf :UIElement ;
-    rdfs:label "Menu Item"@en .
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Button"@en ;
+    rdfs:comment "A clickable button element"@en .
 
 :Link rdf:type owl:Class ;
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Link"@en ;
+    rdfs:comment "A hyperlink element"@en .
+
+:Icon rdf:type owl:Class ;
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Icon"@en ;
+    rdfs:comment "A clickable icon"@en .
+
+:Tab rdf:type owl:Class ;
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Tab"@en ;
+    rdfs:comment "A tab element in tabbed interface"@en .
+
+:MenuItem rdf:type owl:Class ;
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Menu Item"@en ;
+    rdfs:comment "An item in a menu or dropdown"@en .
+
+:Checkbox rdf:type owl:Class ;
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Checkbox"@en ;
+    rdfs:comment "A checkbox element"@en .
+
+:RadioButton rdf:type owl:Class ;
+    rdfs:subClassOf :ClickableElement ;
+    rdfs:label "Radio Button"@en ;
+    rdfs:comment "A radio button element"@en .
+
+# --- Input Elements ---
+:InputElement rdf:type owl:Class ;
     rdfs:subClassOf :UIElement ;
-    rdfs:label "Link"@en .
+    rdfs:label "Input Element"@en ;
+    rdfs:comment "Elements that accept user input"@en .
+
+:TextField rdf:type owl:Class ;
+    rdfs:subClassOf :InputElement ;
+    rdfs:label "Text Field"@en ;
+    rdfs:comment "A single-line text input field"@en .
+
+:TextArea rdf:type owl:Class ;
+    rdfs:subClassOf :InputElement ;
+    rdfs:label "Text Area"@en ;
+    rdfs:comment "A multi-line text input area"@en .
 
 :SearchBox rdf:type owl:Class ;
     rdfs:subClassOf :TextField ;
-    rdfs:label "Search Box"@en .
+    rdfs:label "Search Box"@en ;
+    rdfs:comment "A search input field"@en .
 
 :AddressBar rdf:type owl:Class ;
     rdfs:subClassOf :TextField ;
     rdfs:label "Address Bar"@en ;
-    rdfs:comment "Adresna traka u browseru"@sr .
+    rdfs:comment "Browser URL address bar"@en .
 
-# === APPLICATIONS ===
+:CodeEditor rdf:type owl:Class ;
+    rdfs:subClassOf :TextArea ;
+    rdfs:label "Code Editor"@en ;
+    rdfs:comment "Code editing area in IDE"@en .
+
+:Terminal rdf:type owl:Class ;
+    rdfs:subClassOf :TextArea ;
+    rdfs:label "Terminal"@en ;
+    rdfs:comment "Command line terminal"@en .
+
+:Dropdown rdf:type owl:Class ;
+    rdfs:subClassOf :InputElement ;
+    rdfs:label "Dropdown"@en ;
+    rdfs:comment "A dropdown select element"@en .
+
+# --- Container Elements ---
+:ContainerElement rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Container Element"@en ;
+    rdfs:comment "Elements that contain other elements"@en .
+
+:Window rdf:type owl:Class ;
+    rdfs:subClassOf :ContainerElement ;
+    rdfs:label "Window"@en ;
+    rdfs:comment "An application window"@en .
+
+:Dialog rdf:type owl:Class ;
+    rdfs:subClassOf :ContainerElement ;
+    rdfs:label "Dialog"@en ;
+    rdfs:comment "A dialog or modal window"@en .
+
+:Panel rdf:type owl:Class ;
+    rdfs:subClassOf :ContainerElement ;
+    rdfs:label "Panel"@en ;
+    rdfs:comment "A panel or pane in the interface"@en .
+
+:Menu rdf:type owl:Class ;
+    rdfs:subClassOf :ContainerElement ;
+    rdfs:label "Menu"@en ;
+    rdfs:comment "A menu container"@en .
+
+:Toolbar rdf:type owl:Class ;
+    rdfs:subClassOf :ContainerElement ;
+    rdfs:label "Toolbar"@en ;
+    rdfs:comment "A toolbar with action buttons"@en .
+
+:Sidebar rdf:type owl:Class ;
+    rdfs:subClassOf :ContainerElement ;
+    rdfs:label "Sidebar"@en ;
+    rdfs:comment "A sidebar panel"@en .
+
+# --- Display Elements ---
+:DisplayElement rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Display Element"@en ;
+    rdfs:comment "Elements that display information"@en .
+
+:Label rdf:type owl:Class ;
+    rdfs:subClassOf :DisplayElement ;
+    rdfs:label "Label"@en ;
+    rdfs:comment "A text label"@en .
+
+:Image rdf:type owl:Class ;
+    rdfs:subClassOf :DisplayElement ;
+    rdfs:label "Image"@en ;
+    rdfs:comment "An image element"@en .
+
+:VideoPlayer rdf:type owl:Class ;
+    rdfs:subClassOf :DisplayElement ;
+    rdfs:label "Video Player"@en ;
+    rdfs:comment "A video player component"@en .
+
+:ProgressBar rdf:type owl:Class ;
+    rdfs:subClassOf :DisplayElement ;
+    rdfs:label "Progress Bar"@en ;
+    rdfs:comment "A progress indicator"@en .
+
+:Notification rdf:type owl:Class ;
+    rdfs:subClassOf :DisplayElement ;
+    rdfs:label "Notification"@en ;
+    rdfs:comment "A notification or toast message"@en .
+
+# ============================================================
+# APPLICATIONS - Application Categories
+# ============================================================
+
 :Application rdf:type owl:Class ;
     rdfs:label "Application"@en ;
-    rdfs:comment "Desktop aplikacija"@sr .
+    rdfs:comment "Base class for all desktop and web applications"@en .
 
+# --- Web Browsers ---
 :Browser rdf:type owl:Class ;
     rdfs:subClassOf :Application ;
-    rdfs:label "Browser"@en .
+    rdfs:label "Web Browser"@en ;
+    rdfs:comment "Web browser application"@en .
 
+# --- IDEs and Code Editors ---
 :IDE rdf:type owl:Class ;
     rdfs:subClassOf :Application ;
-    rdfs:label "IDE"@en .
+    rdfs:label "IDE"@en ;
+    rdfs:comment "Integrated Development Environment"@en .
 
+:CodeEditor rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Code Editor Application"@en ;
+    rdfs:comment "Lightweight code editor application"@en .
+
+# --- Text Editors ---
 :TextEditor rdf:type owl:Class ;
     rdfs:subClassOf :Application ;
-    rdfs:label "Text Editor"@en .
+    rdfs:label "Text Editor"@en ;
+    rdfs:comment "Plain text editor application"@en .
 
-# === EXECUTION STATE ===
+# --- Office Applications ---
+:OfficeApplication rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Office Application"@en ;
+    rdfs:comment "Office productivity application"@en .
+
+:WordProcessor rdf:type owl:Class ;
+    rdfs:subClassOf :OfficeApplication ;
+    rdfs:label "Word Processor"@en ;
+    rdfs:comment "Document editing application"@en .
+
+:Spreadsheet rdf:type owl:Class ;
+    rdfs:subClassOf :OfficeApplication ;
+    rdfs:label "Spreadsheet"@en ;
+    rdfs:comment "Spreadsheet application"@en .
+
+:Presentation rdf:type owl:Class ;
+    rdfs:subClassOf :OfficeApplication ;
+    rdfs:label "Presentation"@en ;
+    rdfs:comment "Presentation software"@en .
+
+# --- Developer Tools ---
+:DeveloperTool rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Developer Tool"@en ;
+    rdfs:comment "Software development tools"@en .
+
+:ContainerPlatform rdf:type owl:Class ;
+    rdfs:subClassOf :DeveloperTool ;
+    rdfs:label "Container Platform"@en ;
+    rdfs:comment "Container and virtualization platform"@en .
+
+:VersionControl rdf:type owl:Class ;
+    rdfs:subClassOf :DeveloperTool ;
+    rdfs:label "Version Control"@en ;
+    rdfs:comment "Version control system"@en .
+
+:DatabaseTool rdf:type owl:Class ;
+    rdfs:subClassOf :DeveloperTool ;
+    rdfs:label "Database Tool"@en ;
+    rdfs:comment "Database management tool"@en .
+
+:APIClient rdf:type owl:Class ;
+    rdfs:subClassOf :DeveloperTool ;
+    rdfs:label "API Client"@en ;
+    rdfs:comment "API testing and development client"@en .
+
+# --- Media Applications ---
+:MediaApplication rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Media Application"@en ;
+    rdfs:comment "Media playback and editing application"@en .
+
+:MediaPlayer rdf:type owl:Class ;
+    rdfs:subClassOf :MediaApplication ;
+    rdfs:label "Media Player"@en ;
+    rdfs:comment "Audio/video player application"@en .
+
+:ImageEditor rdf:type owl:Class ;
+    rdfs:subClassOf :MediaApplication ;
+    rdfs:label "Image Editor"@en ;
+    rdfs:comment "Image editing application"@en .
+
+# --- Communication Applications ---
+:CommunicationApp rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Communication App"@en ;
+    rdfs:comment "Communication and messaging application"@en .
+
+:EmailClient rdf:type owl:Class ;
+    rdfs:subClassOf :CommunicationApp ;
+    rdfs:label "Email Client"@en ;
+    rdfs:comment "Email application"@en .
+
+:Messenger rdf:type owl:Class ;
+    rdfs:subClassOf :CommunicationApp ;
+    rdfs:label "Messenger"@en ;
+    rdfs:comment "Instant messaging application"@en .
+
+:VideoConference rdf:type owl:Class ;
+    rdfs:subClassOf :CommunicationApp ;
+    rdfs:label "Video Conference"@en ;
+    rdfs:comment "Video conferencing application"@en .
+
+# --- System Utilities ---
+:SystemUtility rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "System Utility"@en ;
+    rdfs:comment "System utility application"@en .
+
+:FileManager rdf:type owl:Class ;
+    rdfs:subClassOf :SystemUtility ;
+    rdfs:label "File Manager"@en ;
+    rdfs:comment "File management application"@en .
+
+:CommandLine rdf:type owl:Class ;
+    rdfs:subClassOf :SystemUtility ;
+    rdfs:label "Command Line"@en ;
+    rdfs:comment "Command line interface"@en .
+
+# ============================================================
+# WEB SERVICES - Online Platforms
+# ============================================================
+
+:WebService rdf:type owl:Class ;
+    rdfs:label "Web Service"@en ;
+    rdfs:comment "Online web service or platform"@en .
+
+# --- Video Platforms ---
+:VideoPlatform rdf:type owl:Class ;
+    rdfs:subClassOf :WebService ;
+    rdfs:label "Video Platform"@en ;
+    rdfs:comment "Video streaming and sharing platform"@en .
+
+# --- Social Media ---
+:SocialMedia rdf:type owl:Class ;
+    rdfs:subClassOf :WebService ;
+    rdfs:label "Social Media"@en ;
+    rdfs:comment "Social media platform"@en .
+
+# --- Cloud Services ---
+:CloudService rdf:type owl:Class ;
+    rdfs:subClassOf :WebService ;
+    rdfs:label "Cloud Service"@en ;
+    rdfs:comment "Cloud storage and services"@en .
+
+# --- Developer Platforms ---
+:DeveloperPlatform rdf:type owl:Class ;
+    rdfs:subClassOf :WebService ;
+    rdfs:label "Developer Platform"@en ;
+    rdfs:comment "Software development platform"@en .
+
+# --- Search Engines ---
+:SearchEngine rdf:type owl:Class ;
+    rdfs:subClassOf :WebService ;
+    rdfs:label "Search Engine"@en ;
+    rdfs:comment "Web search engine"@en .
+
+# ============================================================
+# EXECUTION STATE
+# ============================================================
+
 :ExecutionState rdf:type owl:Class ;
     rdfs:label "Execution State"@en ;
-    rdfs:comment "Stanje izvrsavanja koraka"@sr .
+    rdfs:comment "State of step execution"@en .
 
 :PendingState rdf:type owl:Class ;
     rdfs:subClassOf :ExecutionState ;
-    rdfs:label "Pending"@en .
+    rdfs:label "Pending"@en ;
+    rdfs:comment "Step is waiting to be executed"@en .
 
 :ExecutingState rdf:type owl:Class ;
     rdfs:subClassOf :ExecutionState ;
-    rdfs:label "Executing"@en .
+    rdfs:label "Executing"@en ;
+    rdfs:comment "Step is currently being executed"@en .
 
 :CompletedState rdf:type owl:Class ;
     rdfs:subClassOf :ExecutionState ;
-    rdfs:label "Completed"@en .
+    rdfs:label "Completed"@en ;
+    rdfs:comment "Step has been successfully completed"@en .
 
 :FailedState rdf:type owl:Class ;
     rdfs:subClassOf :ExecutionState ;
-    rdfs:label "Failed"@en .
+    rdfs:label "Failed"@en ;
+    rdfs:comment "Step execution has failed"@en .
 
 :SkippedState rdf:type owl:Class ;
     rdfs:subClassOf :ExecutionState ;
-    rdfs:label "Skipped"@en .
+    rdfs:label "Skipped"@en ;
+    rdfs:comment "Step was skipped"@en .
+
+:RetryingState rdf:type owl:Class ;
+    rdfs:subClassOf :ExecutionState ;
+    rdfs:label "Retrying"@en ;
+    rdfs:comment "Step is being retried after failure"@en .
 
 # ============================================================
 # OBJECT PROPERTIES
@@ -167,64 +524,80 @@
     rdfs:domain :Task ;
     rdfs:range :Step ;
     rdfs:label "has step"@en ;
-    rdfs:comment "Task ima korak"@sr .
+    rdfs:comment "Task contains this step"@en .
 
 :hasAction rdf:type owl:ObjectProperty ;
     rdfs:domain :Step ;
     rdfs:range :Action ;
     rdfs:label "has action"@en ;
-    rdfs:comment "Korak ima akciju"@sr .
+    rdfs:comment "Step performs this action"@en .
 
 :hasTarget rdf:type owl:ObjectProperty ;
     rdfs:domain :Step ;
     rdfs:range :UIElement ;
     rdfs:label "has target"@en ;
-    rdfs:comment "Korak ima ciljni element"@sr .
+    rdfs:comment "Step targets this UI element"@en .
 
 :requiresApplication rdf:type owl:ObjectProperty ;
     rdfs:domain :Task ;
     rdfs:range :Application ;
     rdfs:label "requires application"@en ;
-    rdfs:comment "Task zahtijeva aplikaciju"@sr .
+    rdfs:comment "Task requires this application to be available"@en .
 
 :opensApplication rdf:type owl:ObjectProperty ;
     rdfs:domain :OpenApplicationAction ;
     rdfs:range :Application ;
-    rdfs:label "opens application"@en .
+    rdfs:label "opens application"@en ;
+    rdfs:comment "This action opens the specified application"@en .
 
 :hasState rdf:type owl:ObjectProperty ;
     rdfs:domain :Step ;
     rdfs:range :ExecutionState ;
     rdfs:label "has state"@en ;
-    rdfs:comment "Korak ima stanje izvrsavanja"@sr .
+    rdfs:comment "Current execution state of the step"@en .
 
 :nextStep rdf:type owl:ObjectProperty ;
     rdfs:domain :Step ;
     rdfs:range :Step ;
     rdfs:label "next step"@en ;
-    rdfs:comment "Sledecii korak u sekvenci"@sr .
+    rdfs:comment "The step that follows this one in sequence"@en .
 
 :previousStep rdf:type owl:ObjectProperty ;
     owl:inverseOf :nextStep ;
-    rdfs:label "previous step"@en .
+    rdfs:domain :Step ;
+    rdfs:range :Step ;
+    rdfs:label "previous step"@en ;
+    rdfs:comment "The step that precedes this one in sequence"@en .
 
 :hasPrecondition rdf:type owl:ObjectProperty ;
     rdfs:domain :Step ;
     rdfs:range :ExecutionState ;
     rdfs:label "has precondition"@en ;
-    rdfs:comment "Preduslov za izvrsavanje koraka"@sr .
+    rdfs:comment "Required state before step can execute"@en .
 
 :hasPostcondition rdf:type owl:ObjectProperty ;
     rdfs:domain :Step ;
     rdfs:range :ExecutionState ;
     rdfs:label "has postcondition"@en ;
-    rdfs:comment "Stanje nakon izvrsavanja koraka"@sr .
+    rdfs:comment "Expected state after step execution"@en .
 
 :partOf rdf:type owl:ObjectProperty ;
     rdfs:domain :UIElement ;
     rdfs:range :Application ;
     rdfs:label "part of"@en ;
-    rdfs:comment "Element je dio aplikacije"@sr .
+    rdfs:comment "UI element belongs to this application"@en .
+
+:usesService rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :WebService ;
+    rdfs:label "uses service"@en ;
+    rdfs:comment "Task uses this web service"@en .
+
+:compatibleWith rdf:type owl:ObjectProperty ;
+    rdfs:domain :Application ;
+    rdfs:range :Application ;
+    rdfs:label "compatible with"@en ;
+    rdfs:comment "Application is compatible with another"@en .
 
 # ============================================================
 # DATA PROPERTIES
@@ -234,166 +607,1371 @@
     rdfs:domain :Step ;
     rdfs:range xsd:integer ;
     rdfs:label "step order"@en ;
-    rdfs:comment "Redni broj koraka"@sr .
+    rdfs:comment "Sequential order of the step (1, 2, 3...)"@en .
 
 :stepDescription rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:string ;
-    rdfs:label "step description"@en .
+    rdfs:label "step description"@en ;
+    rdfs:comment "Human-readable description of the step"@en .
 
 :expectedResult rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:string ;
-    rdfs:label "expected result"@en .
+    rdfs:label "expected result"@en ;
+    rdfs:comment "Expected outcome after step execution"@en .
 
 :targetName rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:string ;
     rdfs:label "target name"@en ;
-    rdfs:comment "Ime ciljnog elementa"@sr .
+    rdfs:comment "Name or label of the target UI element"@en .
 
 :inputValue rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:string ;
     rdfs:label "input value"@en ;
-    rdfs:comment "Vrijednost za unos (tekst, URL, itd.)"@sr .
+    rdfs:comment "Text or value to input (for type_text action)"@en .
 
 :waitDuration rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:integer ;
     rdfs:label "wait duration"@en ;
-    rdfs:comment "Trajanje cekanja u sekundama"@sr .
+    rdfs:comment "Duration to wait in seconds"@en .
 
 :isOptional rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:boolean ;
     rdfs:label "is optional"@en ;
-    rdfs:comment "Da li je korak opcionalan"@sr .
+    rdfs:comment "Whether this step can be skipped"@en .
 
 :taskGoal rdf:type owl:DatatypeProperty ;
     rdfs:domain :Task ;
     rdfs:range xsd:string ;
-    rdfs:label "task goal"@en .
+    rdfs:label "task goal"@en ;
+    rdfs:comment "The goal or objective of the task"@en .
 
 :originalInstruction rdf:type owl:DatatypeProperty ;
     rdfs:domain :Task ;
     rdfs:range xsd:string ;
-    rdfs:label "original instruction"@en .
+    rdfs:label "original instruction"@en ;
+    rdfs:comment "The original user instruction"@en .
 
 :successCriteria rdf:type owl:DatatypeProperty ;
     rdfs:domain :Task ;
     rdfs:range xsd:string ;
-    rdfs:label "success criteria"@en .
+    rdfs:label "success criteria"@en ;
+    rdfs:comment "Criteria to determine if task succeeded"@en .
 
 :applicationName rdf:type owl:DatatypeProperty ;
     rdfs:domain :Application ;
     rdfs:range xsd:string ;
-    rdfs:label "application name"@en .
+    rdfs:label "application name"@en ;
+    rdfs:comment "Name of the application"@en .
 
 :keyName rdf:type owl:DatatypeProperty ;
     rdfs:domain :Step ;
     rdfs:range xsd:string ;
     rdfs:label "key name"@en ;
-    rdfs:comment "Ime tastera za key_press akciju"@sr .
+    rdfs:comment "Name of the key to press (for key_press action)"@en .
+
+:url rdf:type owl:DatatypeProperty ;
+    rdfs:domain :WebService ;
+    rdfs:range xsd:anyURI ;
+    rdfs:label "URL"@en ;
+    rdfs:comment "Web address of the service"@en .
+
+:executablePath rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Application ;
+    rdfs:range xsd:string ;
+    rdfs:label "executable path"@en ;
+    rdfs:comment "Path to the application executable"@en .
+
+:shortcutKey rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Action ;
+    rdfs:range xsd:string ;
+    rdfs:label "shortcut key"@en ;
+    rdfs:comment "Keyboard shortcut for this action"@en .
+
+:retryCount rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "retry count"@en ;
+    rdfs:comment "Number of retry attempts allowed"@en .
+
+:timeout rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "timeout"@en ;
+    rdfs:comment "Maximum time to wait for step completion in seconds"@en .
 
 # ============================================================
-# INDIVIDUALS - Poznate aplikacije
+# INDIVIDUALS - Web Browsers
 # ============================================================
 
 :OperaBrowser rdf:type :Browser ;
     rdfs:label "Opera"@en ;
-    :applicationName "Opera" .
+    rdfs:comment "Opera web browser"@en ;
+    :applicationName "Opera" ;
+    :executablePath "opera.exe" .
 
 :ChromeBrowser rdf:type :Browser ;
     rdfs:label "Google Chrome"@en ;
-    :applicationName "Chrome" .
+    rdfs:comment "Google Chrome web browser"@en ;
+    :applicationName "Chrome" ;
+    :executablePath "chrome.exe" .
 
 :FirefoxBrowser rdf:type :Browser ;
     rdfs:label "Mozilla Firefox"@en ;
-    :applicationName "Firefox" .
+    rdfs:comment "Mozilla Firefox web browser"@en ;
+    :applicationName "Firefox" ;
+    :executablePath "firefox.exe" .
 
 :EdgeBrowser rdf:type :Browser ;
     rdfs:label "Microsoft Edge"@en ;
-    :applicationName "Edge" .
+    rdfs:comment "Microsoft Edge web browser"@en ;
+    :applicationName "Edge" ;
+    :executablePath "msedge.exe" .
+
+:BraveBrowser rdf:type :Browser ;
+    rdfs:label "Brave"@en ;
+    rdfs:comment "Brave privacy-focused web browser"@en ;
+    :applicationName "Brave" ;
+    :executablePath "brave.exe" .
+
+:SafariBrowser rdf:type :Browser ;
+    rdfs:label "Safari"@en ;
+    rdfs:comment "Apple Safari web browser"@en ;
+    :applicationName "Safari" .
+
+# ============================================================
+# INDIVIDUALS - IDEs
+# ============================================================
 
 :VisualStudio rdf:type :IDE ;
     rdfs:label "Visual Studio"@en ;
-    :applicationName "Visual Studio" .
+    rdfs:comment "Microsoft Visual Studio IDE"@en ;
+    :applicationName "Visual Studio" ;
+    :executablePath "devenv.exe" .
 
-:VSCode rdf:type :IDE ;
+:VisualStudio2022 rdf:type :IDE ;
+    rdfs:label "Visual Studio 2022"@en ;
+    rdfs:comment "Microsoft Visual Studio 2022"@en ;
+    :applicationName "Visual Studio 2022" .
+
+:VisualStudio2026 rdf:type :IDE ;
+    rdfs:label "Visual Studio 2026"@en ;
+    rdfs:comment "Microsoft Visual Studio 2026"@en ;
+    :applicationName "Visual Studio 2026" .
+
+:VSCode rdf:type :CodeEditor, :IDE ;
     rdfs:label "Visual Studio Code"@en ;
-    :applicationName "VS Code" .
+    rdfs:comment "Microsoft Visual Studio Code editor"@en ;
+    :applicationName "VS Code" ;
+    :executablePath "code.exe" .
 
 :Eclipse rdf:type :IDE ;
     rdfs:label "Eclipse"@en ;
-    :applicationName "Eclipse" .
+    rdfs:comment "Eclipse IDE for Java development"@en ;
+    :applicationName "Eclipse" ;
+    :executablePath "eclipse.exe" .
+
+:IntelliJIDEA rdf:type :IDE ;
+    rdfs:label "IntelliJ IDEA"@en ;
+    rdfs:comment "JetBrains IntelliJ IDEA"@en ;
+    :applicationName "IntelliJ IDEA" .
+
+:PyCharm rdf:type :IDE ;
+    rdfs:label "PyCharm"@en ;
+    rdfs:comment "JetBrains PyCharm for Python"@en ;
+    :applicationName "PyCharm" .
+
+:WebStorm rdf:type :IDE ;
+    rdfs:label "WebStorm"@en ;
+    rdfs:comment "JetBrains WebStorm for JavaScript"@en ;
+    :applicationName "WebStorm" .
+
+:AndroidStudio rdf:type :IDE ;
+    rdfs:label "Android Studio"@en ;
+    rdfs:comment "Google Android Studio"@en ;
+    :applicationName "Android Studio" .
+
+:XCode rdf:type :IDE ;
+    rdfs:label "Xcode"@en ;
+    rdfs:comment "Apple Xcode for iOS/macOS development"@en ;
+    :applicationName "Xcode" .
+
+:Rider rdf:type :IDE ;
+    rdfs:label "Rider"@en ;
+    rdfs:comment "JetBrains Rider for .NET"@en ;
+    :applicationName "Rider" .
+
+:NetBeans rdf:type :IDE ;
+    rdfs:label "NetBeans"@en ;
+    rdfs:comment "Apache NetBeans IDE"@en ;
+    :applicationName "NetBeans" .
+
+# ============================================================
+# INDIVIDUALS - Text Editors
+# ============================================================
 
 :Notepad rdf:type :TextEditor ;
     rdfs:label "Notepad"@en ;
-    :applicationName "Notepad" .
+    rdfs:comment "Windows Notepad"@en ;
+    :applicationName "Notepad" ;
+    :executablePath "notepad.exe" .
 
 :NotepadPlusPlus rdf:type :TextEditor ;
     rdfs:label "Notepad++"@en ;
-    :applicationName "Notepad++" .
+    rdfs:comment "Notepad++ text editor"@en ;
+    :applicationName "Notepad++" ;
+    :executablePath "notepad++.exe" .
 
-# === Poznati UI elementi ===
-:YouTubeSearchBox rdf:type :SearchBox ;
-    rdfs:label "YouTube Search Box"@en ;
-    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+:SublimeText rdf:type :TextEditor, :CodeEditor ;
+    rdfs:label "Sublime Text"@en ;
+    rdfs:comment "Sublime Text editor"@en ;
+    :applicationName "Sublime Text" ;
+    :executablePath "sublime_text.exe" .
 
+:Atom rdf:type :TextEditor, :CodeEditor ;
+    rdfs:label "Atom"@en ;
+    rdfs:comment "GitHub Atom editor"@en ;
+    :applicationName "Atom" .
+
+:Vim rdf:type :TextEditor ;
+    rdfs:label "Vim"@en ;
+    rdfs:comment "Vim text editor"@en ;
+    :applicationName "Vim" .
+
+:Nano rdf:type :TextEditor ;
+    rdfs:label "Nano"@en ;
+    rdfs:comment "GNU Nano text editor"@en ;
+    :applicationName "Nano" .
+
+:Wordpad rdf:type :TextEditor ;
+    rdfs:label "WordPad"@en ;
+    rdfs:comment "Windows WordPad"@en ;
+    :applicationName "WordPad" ;
+    :executablePath "wordpad.exe" .
+
+# ============================================================
+# INDIVIDUALS - Developer Tools
+# ============================================================
+
+:Docker rdf:type :ContainerPlatform ;
+    rdfs:label "Docker"@en ;
+    rdfs:comment "Docker container platform"@en ;
+    :applicationName "Docker" ;
+    :executablePath "docker.exe" .
+
+:DockerDesktop rdf:type :ContainerPlatform ;
+    rdfs:label "Docker Desktop"@en ;
+    rdfs:comment "Docker Desktop application"@en ;
+    :applicationName "Docker Desktop" .
+
+:Kubernetes rdf:type :ContainerPlatform ;
+    rdfs:label "Kubernetes"@en ;
+    rdfs:comment "Kubernetes container orchestration"@en ;
+    :applicationName "Kubernetes" .
+
+:Git rdf:type :VersionControl ;
+    rdfs:label "Git"@en ;
+    rdfs:comment "Git version control"@en ;
+    :applicationName "Git" ;
+    :executablePath "git.exe" .
+
+:GitBash rdf:type :VersionControl, :CommandLine ;
+    rdfs:label "Git Bash"@en ;
+    rdfs:comment "Git Bash terminal"@en ;
+    :applicationName "Git Bash" .
+
+:GitHubDesktop rdf:type :VersionControl ;
+    rdfs:label "GitHub Desktop"@en ;
+    rdfs:comment "GitHub Desktop client"@en ;
+    :applicationName "GitHub Desktop" .
+
+:Sourcetree rdf:type :VersionControl ;
+    rdfs:label "Sourcetree"@en ;
+    rdfs:comment "Atlassian Sourcetree Git client"@en ;
+    :applicationName "Sourcetree" .
+
+:Postman rdf:type :APIClient ;
+    rdfs:label "Postman"@en ;
+    rdfs:comment "Postman API client"@en ;
+    :applicationName "Postman" .
+
+:Insomnia rdf:type :APIClient ;
+    rdfs:label "Insomnia"@en ;
+    rdfs:comment "Insomnia REST client"@en ;
+    :applicationName "Insomnia" .
+
+:DBeaver rdf:type :DatabaseTool ;
+    rdfs:label "DBeaver"@en ;
+    rdfs:comment "DBeaver database tool"@en ;
+    :applicationName "DBeaver" .
+
+:DataGrip rdf:type :DatabaseTool ;
+    rdfs:label "DataGrip"@en ;
+    rdfs:comment "JetBrains DataGrip database IDE"@en ;
+    :applicationName "DataGrip" .
+
+:MySQLWorkbench rdf:type :DatabaseTool ;
+    rdfs:label "MySQL Workbench"@en ;
+    rdfs:comment "MySQL Workbench database tool"@en ;
+    :applicationName "MySQL Workbench" .
+
+:SQLServerManagementStudio rdf:type :DatabaseTool ;
+    rdfs:label "SQL Server Management Studio"@en ;
+    rdfs:comment "Microsoft SQL Server Management Studio"@en ;
+    :applicationName "SSMS" .
+
+:pgAdmin rdf:type :DatabaseTool ;
+    rdfs:label "pgAdmin"@en ;
+    rdfs:comment "PostgreSQL administration tool"@en ;
+    :applicationName "pgAdmin" .
+
+:MongoDB_Compass rdf:type :DatabaseTool ;
+    rdfs:label "MongoDB Compass"@en ;
+    rdfs:comment "MongoDB Compass GUI"@en ;
+    :applicationName "MongoDB Compass" .
+
+# ============================================================
+# INDIVIDUALS - Command Line Tools
+# ============================================================
+
+:CommandPrompt rdf:type :CommandLine ;
+    rdfs:label "Command Prompt"@en ;
+    rdfs:comment "Windows Command Prompt"@en ;
+    :applicationName "Command Prompt" ;
+    :executablePath "cmd.exe" .
+
+:PowerShell rdf:type :CommandLine ;
+    rdfs:label "PowerShell"@en ;
+    rdfs:comment "Windows PowerShell"@en ;
+    :applicationName "PowerShell" ;
+    :executablePath "powershell.exe" .
+
+:WindowsTerminal rdf:type :CommandLine ;
+    rdfs:label "Windows Terminal"@en ;
+    rdfs:comment "Windows Terminal application"@en ;
+    :applicationName "Windows Terminal" ;
+    :executablePath "wt.exe" .
+
+:Bash rdf:type :CommandLine ;
+    rdfs:label "Bash"@en ;
+    rdfs:comment "Bash shell"@en ;
+    :applicationName "Bash" .
+
+:Zsh rdf:type :CommandLine ;
+    rdfs:label "Zsh"@en ;
+    rdfs:comment "Z shell"@en ;
+    :applicationName "Zsh" .
+
+# ============================================================
+# INDIVIDUALS - Office Applications
+# ============================================================
+
+:MicrosoftWord rdf:type :WordProcessor ;
+    rdfs:label "Microsoft Word"@en ;
+    rdfs:comment "Microsoft Word document editor"@en ;
+    :applicationName "Word" ;
+    :executablePath "winword.exe" .
+
+:MicrosoftExcel rdf:type :Spreadsheet ;
+    rdfs:label "Microsoft Excel"@en ;
+    rdfs:comment "Microsoft Excel spreadsheet"@en ;
+    :applicationName "Excel" ;
+    :executablePath "excel.exe" .
+
+:MicrosoftPowerPoint rdf:type :Presentation ;
+    rdfs:label "Microsoft PowerPoint"@en ;
+    rdfs:comment "Microsoft PowerPoint presentations"@en ;
+    :applicationName "PowerPoint" ;
+    :executablePath "powerpnt.exe" .
+
+:MicrosoftOutlook rdf:type :EmailClient ;
+    rdfs:label "Microsoft Outlook"@en ;
+    rdfs:comment "Microsoft Outlook email client"@en ;
+    :applicationName "Outlook" ;
+    :executablePath "outlook.exe" .
+
+:LibreOfficeWriter rdf:type :WordProcessor ;
+    rdfs:label "LibreOffice Writer"@en ;
+    rdfs:comment "LibreOffice Writer document editor"@en ;
+    :applicationName "LibreOffice Writer" .
+
+:LibreOfficeCalc rdf:type :Spreadsheet ;
+    rdfs:label "LibreOffice Calc"@en ;
+    rdfs:comment "LibreOffice Calc spreadsheet"@en ;
+    :applicationName "LibreOffice Calc" .
+
+:GoogleDocs rdf:type :WordProcessor ;
+    rdfs:label "Google Docs"@en ;
+    rdfs:comment "Google Docs online editor"@en ;
+    :applicationName "Google Docs" .
+
+:GoogleSheets rdf:type :Spreadsheet ;
+    rdfs:label "Google Sheets"@en ;
+    rdfs:comment "Google Sheets online spreadsheet"@en ;
+    :applicationName "Google Sheets" .
+
+# ============================================================
+# INDIVIDUALS - Communication Apps
+# ============================================================
+
+:Slack rdf:type :Messenger ;
+    rdfs:label "Slack"@en ;
+    rdfs:comment "Slack messaging platform"@en ;
+    :applicationName "Slack" .
+
+:Discord rdf:type :Messenger, :VideoConference ;
+    rdfs:label "Discord"@en ;
+    rdfs:comment "Discord communication platform"@en ;
+    :applicationName "Discord" .
+
+:MicrosoftTeams rdf:type :Messenger, :VideoConference ;
+    rdfs:label "Microsoft Teams"@en ;
+    rdfs:comment "Microsoft Teams collaboration"@en ;
+    :applicationName "Teams" .
+
+:Zoom rdf:type :VideoConference ;
+    rdfs:label "Zoom"@en ;
+    rdfs:comment "Zoom video conferencing"@en ;
+    :applicationName "Zoom" .
+
+:Skype rdf:type :VideoConference, :Messenger ;
+    rdfs:label "Skype"@en ;
+    rdfs:comment "Skype communication"@en ;
+    :applicationName "Skype" .
+
+:Telegram rdf:type :Messenger ;
+    rdfs:label "Telegram"@en ;
+    rdfs:comment "Telegram messenger"@en ;
+    :applicationName "Telegram" .
+
+:WhatsApp rdf:type :Messenger ;
+    rdfs:label "WhatsApp"@en ;
+    rdfs:comment "WhatsApp messenger"@en ;
+    :applicationName "WhatsApp" .
+
+# ============================================================
+# INDIVIDUALS - System Utilities
+# ============================================================
+
+:FileExplorer rdf:type :FileManager ;
+    rdfs:label "File Explorer"@en ;
+    rdfs:comment "Windows File Explorer"@en ;
+    :applicationName "File Explorer" ;
+    :executablePath "explorer.exe" .
+
+:Finder rdf:type :FileManager ;
+    rdfs:label "Finder"@en ;
+    rdfs:comment "macOS Finder"@en ;
+    :applicationName "Finder" .
+
+:TaskManager rdf:type :SystemUtility ;
+    rdfs:label "Task Manager"@en ;
+    rdfs:comment "Windows Task Manager"@en ;
+    :applicationName "Task Manager" ;
+    :executablePath "taskmgr.exe" .
+
+:SystemSettings rdf:type :SystemUtility ;
+    rdfs:label "Settings"@en ;
+    rdfs:comment "Windows Settings"@en ;
+    :applicationName "Settings" .
+
+:ControlPanel rdf:type :SystemUtility ;
+    rdfs:label "Control Panel"@en ;
+    rdfs:comment "Windows Control Panel"@en ;
+    :applicationName "Control Panel" ;
+    :executablePath "control.exe" .
+
+:Calculator rdf:type :SystemUtility ;
+    rdfs:label "Calculator"@en ;
+    rdfs:comment "Windows Calculator"@en ;
+    :applicationName "Calculator" ;
+    :executablePath "calc.exe" .
+
+:SnippingTool rdf:type :SystemUtility ;
+    rdfs:label "Snipping Tool"@en ;
+    rdfs:comment "Windows Snipping Tool"@en ;
+    :applicationName "Snipping Tool" .
+
+:Paint rdf:type :ImageEditor ;
+    rdfs:label "Paint"@en ;
+    rdfs:comment "Windows Paint"@en ;
+    :applicationName "Paint" ;
+    :executablePath "mspaint.exe" .
+
+# ============================================================
+# INDIVIDUALS - Media Applications
+# ============================================================
+
+:VLCPlayer rdf:type :MediaPlayer ;
+    rdfs:label "VLC Media Player"@en ;
+    rdfs:comment "VLC media player"@en ;
+    :applicationName "VLC" ;
+    :executablePath "vlc.exe" .
+
+:WindowsMediaPlayer rdf:type :MediaPlayer ;
+    rdfs:label "Windows Media Player"@en ;
+    rdfs:comment "Windows Media Player"@en ;
+    :applicationName "Windows Media Player" .
+
+:Spotify rdf:type :MediaPlayer ;
+    rdfs:label "Spotify"@en ;
+    rdfs:comment "Spotify music streaming"@en ;
+    :applicationName "Spotify" .
+
+:Photoshop rdf:type :ImageEditor ;
+    rdfs:label "Adobe Photoshop"@en ;
+    rdfs:comment "Adobe Photoshop image editor"@en ;
+    :applicationName "Photoshop" .
+
+:GIMP rdf:type :ImageEditor ;
+    rdfs:label "GIMP"@en ;
+    rdfs:comment "GNU Image Manipulation Program"@en ;
+    :applicationName "GIMP" .
+
+:Figma rdf:type :ImageEditor ;
+    rdfs:label "Figma"@en ;
+    rdfs:comment "Figma design tool"@en ;
+    :applicationName "Figma" .
+
+# ============================================================
+# INDIVIDUALS - Web Services
+# ============================================================
+
+:YouTube rdf:type :VideoPlatform ;
+    rdfs:label "YouTube"@en ;
+    rdfs:comment "YouTube video streaming platform"@en ;
+    :applicationName "YouTube" ;
+    :url "https://www.youtube.com"^^xsd:anyURI .
+
+:Vimeo rdf:type :VideoPlatform ;
+    rdfs:label "Vimeo"@en ;
+    rdfs:comment "Vimeo video platform"@en ;
+    :applicationName "Vimeo" ;
+    :url "https://vimeo.com"^^xsd:anyURI .
+
+:Twitch rdf:type :VideoPlatform ;
+    rdfs:label "Twitch"@en ;
+    rdfs:comment "Twitch streaming platform"@en ;
+    :applicationName "Twitch" ;
+    :url "https://www.twitch.tv"^^xsd:anyURI .
+
+:Netflix rdf:type :VideoPlatform ;
+    rdfs:label "Netflix"@en ;
+    rdfs:comment "Netflix streaming service"@en ;
+    :applicationName "Netflix" ;
+    :url "https://www.netflix.com"^^xsd:anyURI .
+
+:GitHub rdf:type :DeveloperPlatform ;
+    rdfs:label "GitHub"@en ;
+    rdfs:comment "GitHub code hosting platform"@en ;
+    :applicationName "GitHub" ;
+    :url "https://github.com"^^xsd:anyURI .
+
+:GitLab rdf:type :DeveloperPlatform ;
+    rdfs:label "GitLab"@en ;
+    rdfs:comment "GitLab DevOps platform"@en ;
+    :applicationName "GitLab" ;
+    :url "https://gitlab.com"^^xsd:anyURI .
+
+:Bitbucket rdf:type :DeveloperPlatform ;
+    rdfs:label "Bitbucket"@en ;
+    rdfs:comment "Atlassian Bitbucket"@en ;
+    :applicationName "Bitbucket" ;
+    :url "https://bitbucket.org"^^xsd:anyURI .
+
+:StackOverflow rdf:type :DeveloperPlatform ;
+    rdfs:label "Stack Overflow"@en ;
+    rdfs:comment "Stack Overflow Q&A platform"@en ;
+    :applicationName "Stack Overflow" ;
+    :url "https://stackoverflow.com"^^xsd:anyURI .
+
+:Google rdf:type :SearchEngine ;
+    rdfs:label "Google"@en ;
+    rdfs:comment "Google search engine"@en ;
+    :applicationName "Google" ;
+    :url "https://www.google.com"^^xsd:anyURI .
+
+:Bing rdf:type :SearchEngine ;
+    rdfs:label "Bing"@en ;
+    rdfs:comment "Microsoft Bing search engine"@en ;
+    :applicationName "Bing" ;
+    :url "https://www.bing.com"^^xsd:anyURI .
+
+:DuckDuckGo rdf:type :SearchEngine ;
+    rdfs:label "DuckDuckGo"@en ;
+    rdfs:comment "DuckDuckGo privacy search engine"@en ;
+    :applicationName "DuckDuckGo" ;
+    :url "https://duckduckgo.com"^^xsd:anyURI .
+
+:GoogleDrive rdf:type :CloudService ;
+    rdfs:label "Google Drive"@en ;
+    rdfs:comment "Google Drive cloud storage"@en ;
+    :applicationName "Google Drive" ;
+    :url "https://drive.google.com"^^xsd:anyURI .
+
+:Dropbox rdf:type :CloudService ;
+    rdfs:label "Dropbox"@en ;
+    rdfs:comment "Dropbox cloud storage"@en ;
+    :applicationName "Dropbox" ;
+    :url "https://www.dropbox.com"^^xsd:anyURI .
+
+:OneDrive rdf:type :CloudService ;
+    rdfs:label "OneDrive"@en ;
+    rdfs:comment "Microsoft OneDrive cloud storage"@en ;
+    :applicationName "OneDrive" ;
+    :url "https://onedrive.live.com"^^xsd:anyURI .
+
+:Twitter rdf:type :SocialMedia ;
+    rdfs:label "Twitter/X"@en ;
+    rdfs:comment "Twitter/X social media"@en ;
+    :applicationName "Twitter" ;
+    :url "https://twitter.com"^^xsd:anyURI .
+
+:Facebook rdf:type :SocialMedia ;
+    rdfs:label "Facebook"@en ;
+    rdfs:comment "Facebook social media"@en ;
+    :applicationName "Facebook" ;
+    :url "https://www.facebook.com"^^xsd:anyURI .
+
+:LinkedIn rdf:type :SocialMedia ;
+    rdfs:label "LinkedIn"@en ;
+    rdfs:comment "LinkedIn professional network"@en ;
+    :applicationName "LinkedIn" ;
+    :url "https://www.linkedin.com"^^xsd:anyURI .
+
+:Reddit rdf:type :SocialMedia ;
+    rdfs:label "Reddit"@en ;
+    rdfs:comment "Reddit community platform"@en ;
+    :applicationName "Reddit" ;
+    :url "https://www.reddit.com"^^xsd:anyURI .
+
+:Instagram rdf:type :SocialMedia ;
+    rdfs:label "Instagram"@en ;
+    rdfs:comment "Instagram social media"@en ;
+    :applicationName "Instagram" ;
+    :url "https://www.instagram.com"^^xsd:anyURI .
+
+# ============================================================
+# INDIVIDUALS - Common UI Elements
+# ============================================================
+
+# Browser UI Elements
 :BrowserAddressBar rdf:type :AddressBar ;
     rdfs:label "Browser Address Bar"@en ;
+    rdfs:comment "URL input field in web browsers"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser, :BraveBrowser .
+
+:BrowserSearchBar rdf:type :SearchBox ;
+    rdfs:label "Browser Search Bar"@en ;
+    rdfs:comment "Search input in browser"@en ;
     :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
 
-# === Akcije kao individuals ===
+:BrowserBackButton rdf:type :Button ;
+    rdfs:label "Back Button"@en ;
+    rdfs:comment "Browser back navigation button"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+
+:BrowserForwardButton rdf:type :Button ;
+    rdfs:label "Forward Button"@en ;
+    rdfs:comment "Browser forward navigation button"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+
+:BrowserRefreshButton rdf:type :Button ;
+    rdfs:label "Refresh Button"@en ;
+    rdfs:comment "Browser page refresh button"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+
+:BrowserNewTabButton rdf:type :Button ;
+    rdfs:label "New Tab Button"@en ;
+    rdfs:comment "Button to open new browser tab"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+
+# YouTube UI Elements
+:YouTubeSearchBox rdf:type :SearchBox ;
+    rdfs:label "YouTube Search Box"@en ;
+    rdfs:comment "Search input on YouTube"@en .
+
+:YouTubePlayButton rdf:type :Button ;
+    rdfs:label "YouTube Play Button"@en ;
+    rdfs:comment "Play button on YouTube video"@en .
+
+:YouTubePauseButton rdf:type :Button ;
+    rdfs:label "YouTube Pause Button"@en ;
+    rdfs:comment "Pause button on YouTube video"@en .
+
+:YouTubeVideoPlayer rdf:type :VideoPlayer ;
+    rdfs:label "YouTube Video Player"@en ;
+    rdfs:comment "YouTube video player component"@en .
+
+:YouTubeSubscribeButton rdf:type :Button ;
+    rdfs:label "Subscribe Button"@en ;
+    rdfs:comment "YouTube channel subscribe button"@en .
+
+# Visual Studio UI Elements
+:VSStartWindow rdf:type :Window ;
+    rdfs:label "Visual Studio Start Window"@en ;
+    rdfs:comment "Visual Studio startup window"@en ;
+    :partOf :VisualStudio .
+
+:VSCreateNewProjectButton rdf:type :Button ;
+    rdfs:label "Create a new project"@en ;
+    rdfs:comment "Button to create new project in VS"@en ;
+    :partOf :VisualStudio .
+
+:VSTemplateSearchBox rdf:type :SearchBox ;
+    rdfs:label "Search for templates"@en ;
+    rdfs:comment "Template search box in VS"@en ;
+    :partOf :VisualStudio .
+
+:VSProjectNameField rdf:type :TextField ;
+    rdfs:label "Project name"@en ;
+    rdfs:comment "Project name input field"@en ;
+    :partOf :VisualStudio .
+
+:VSSolutionExplorer rdf:type :Panel ;
+    rdfs:label "Solution Explorer"@en ;
+    rdfs:comment "Solution Explorer panel in VS"@en ;
+    :partOf :VisualStudio .
+
+:VSCodeEditor rdf:type :CodeEditor ;
+    rdfs:label "Code Editor"@en ;
+    rdfs:comment "Main code editing area"@en ;
+    :partOf :VisualStudio, :VSCode .
+
+:VSStartButton rdf:type :Button ;
+    rdfs:label "Start"@en ;
+    rdfs:comment "Start debugging button (green play)"@en ;
+    :partOf :VisualStudio .
+
+# VS Code UI Elements
+:VSCodeActivityBar rdf:type :Sidebar ;
+    rdfs:label "Activity Bar"@en ;
+    rdfs:comment "VS Code left sidebar with icons"@en ;
+    :partOf :VSCode .
+
+:VSCodeExplorer rdf:type :Panel ;
+    rdfs:label "Explorer"@en ;
+    rdfs:comment "File explorer panel in VS Code"@en ;
+    :partOf :VSCode .
+
+:VSCodeTerminal rdf:type :Terminal ;
+    rdfs:label "Terminal"@en ;
+    rdfs:comment "Integrated terminal in VS Code"@en ;
+    :partOf :VSCode .
+
+:VSCodeCommandPalette rdf:type :SearchBox ;
+    rdfs:label "Command Palette"@en ;
+    rdfs:comment "VS Code command palette (Ctrl+Shift+P)"@en ;
+    :partOf :VSCode .
+
+# Docker UI Elements
+:DockerContainersList rdf:type :Panel ;
+    rdfs:label "Containers"@en ;
+    rdfs:comment "Docker containers list"@en ;
+    :partOf :DockerDesktop .
+
+:DockerImagesList rdf:type :Panel ;
+    rdfs:label "Images"@en ;
+    rdfs:comment "Docker images list"@en ;
+    :partOf :DockerDesktop .
+
+:DockerRunButton rdf:type :Button ;
+    rdfs:label "Run"@en ;
+    rdfs:comment "Run container button"@en ;
+    :partOf :DockerDesktop .
+
+# ============================================================
+# INDIVIDUALS - Actions (for SPARQL queries)
+# ============================================================
+
 :click rdf:type :ClickAction ;
-    rdfs:label "click"@en .
+    rdfs:label "click"@en ;
+    rdfs:comment "Single click action"@en .
 
 :double_click rdf:type :DoubleClickAction ;
-    rdfs:label "double_click"@en .
+    rdfs:label "double_click"@en ;
+    rdfs:comment "Double click action"@en .
 
 :right_click rdf:type :RightClickAction ;
-    rdfs:label "right_click"@en .
+    rdfs:label "right_click"@en ;
+    rdfs:comment "Right click action"@en .
 
 :type_text rdf:type :TypeTextAction ;
-    rdfs:label "type_text"@en .
+    rdfs:label "type_text"@en ;
+    rdfs:comment "Type text action"@en .
 
 :key_press rdf:type :KeyPressAction ;
-    rdfs:label "key_press"@en .
+    rdfs:label "key_press"@en ;
+    rdfs:comment "Key press action"@en .
 
 :key_combination rdf:type :KeyCombinationAction ;
-    rdfs:label "key_combination"@en .
+    rdfs:label "key_combination"@en ;
+    rdfs:comment "Key combination action"@en .
 
 :wait rdf:type :WaitAction ;
-    rdfs:label "wait"@en .
+    rdfs:label "wait"@en ;
+    rdfs:comment "Wait action"@en .
 
 :open_application rdf:type :OpenApplicationAction ;
-    rdfs:label "open_application"@en .
+    rdfs:label "open_application"@en ;
+    rdfs:comment "Open application action"@en .
 
 :close_application rdf:type :CloseApplicationAction ;
-    rdfs:label "close_application"@en .
+    rdfs:label "close_application"@en ;
+    rdfs:comment "Close application action"@en .
 
 :scroll rdf:type :ScrollAction ;
-    rdfs:label "scroll"@en .
+    rdfs:label "scroll"@en ;
+    rdfs:comment "Scroll action"@en .
+
+:move_mouse rdf:type :MoveMouseAction ;
+    rdfs:label "move_mouse"@en ;
+    rdfs:comment "Move mouse action"@en .
+
+:drag_and_drop rdf:type :DragAndDropAction ;
+    rdfs:label "drag_and_drop"@en ;
+    rdfs:comment "Drag and drop action"@en .
+
+:copy rdf:type :CopyAction ;
+    rdfs:label "copy"@en ;
+    rdfs:comment "Copy to clipboard action"@en ;
+    :shortcutKey "Ctrl+C" .
+
+:paste rdf:type :PasteAction ;
+    rdfs:label "paste"@en ;
+    rdfs:comment "Paste from clipboard action"@en ;
+    :shortcutKey "Ctrl+V" .
+
+:screenshot rdf:type :ScreenshotAction ;
+    rdfs:label "screenshot"@en ;
+    rdfs:comment "Take screenshot action"@en .
+
+:switch_application rdf:type :SwitchApplicationAction ;
+    rdfs:label "switch_application"@en ;
+    rdfs:comment "Switch to another application"@en ;
+    :shortcutKey "Alt+Tab" .
+
+:minimize rdf:type :MinimizeApplicationAction ;
+    rdfs:label "minimize"@en ;
+    rdfs:comment "Minimize window action"@en .
+
+:maximize rdf:type :MaximizeApplicationAction ;
+    rdfs:label "maximize"@en ;
+    rdfs:comment "Maximize window action"@en .
 
 # ============================================================
-# SWRL-like RULES (as comments - implement in Python)
+# VALIDATION RULES (Implemented in Python)
 # ============================================================
 
-# Rule 1: OpenApplication mora biti prvi korak ako aplikacija nije otvorena
+# Rule 1: open_application must be first if app not already open
 # IF Step(?s) AND hasAction(?s, :open_application) AND stepOrder(?s, ?order) AND ?order > 1
-#    AND NOT EXISTS previousStep(?s, ?prev) AND hasAction(?prev, :open_application)
-# THEN InvalidSequence(?s)
+#    AND NOT EXISTS previousStep with open_application for same app
+# THEN Warning("Consider opening application first")
 
-# Rule 2: Wait nakon OpenApplication
+# Rule 2: wait should follow open_application
 # IF Step(?s1) AND hasAction(?s1, :open_application) AND nextStep(?s1, ?s2)
 #    AND NOT hasAction(?s2, :wait)
-# THEN Warning("Preporučeno je dodati wait nakon open_application")
+# THEN Warning("Recommended to add wait after open_application")
 
-# Rule 3: TypeText zahtijeva target
-# IF Step(?s) AND hasAction(?s, :type_text) AND NOT targetName(?s, ?target)
-# THEN InvalidStep(?s, "type_text zahtijeva target")
+# Rule 3: type_text requires non-empty value
+# IF Step(?s) AND hasAction(?s, :type_text) AND (NOT inputValue(?s, ?val) OR ?val = "")
+# THEN Error("type_text action requires a value to type")
 
-# Rule 4: KeyPress zahtijeva key name
+# Rule 4: key_press requires key name
 # IF Step(?s) AND hasAction(?s, :key_press) AND NOT keyName(?s, ?key)
-# THEN InvalidStep(?s, "key_press zahtijeva ime tastera")
+#    AND NOT targetName(?s, ?target)
+# THEN Error("key_press action requires a key name")
+
+# Rule 5: click requires target
+# IF Step(?s) AND hasAction(?s, :click) AND (NOT targetName(?s, ?t) OR ?t = "screen")
+# THEN Warning("click action should have a specific target element")
+
+# Rule 6: wait requires duration
+# IF Step(?s) AND hasAction(?s, :wait) AND NOT waitDuration(?s, ?d)
+# THEN Error("wait action requires duration in seconds")
+
+# Rule 7: Browser actions require browser to be open
+# IF Step(?s) AND targetName(?s, "Address bar") 
+#    AND NOT EXISTS previousStep with open_application for Browser
+# THEN Error("Browser must be opened before using Address bar")
+
+# Rule 8: YouTube actions require YouTube to be loaded
+# IF Step(?s) AND targetName(?s, ?t) AND contains(?t, "YouTube")
+#    AND NOT EXISTS previousStep navigating to youtube.com
+# THEN Warning("Ensure YouTube is loaded before interacting with its elements")
+
+# Rule 9: IDE project actions require project to be created
+# IF Step(?s) AND hasAction(?s, :type_text) AND targetName(?s, "editor")
+#    AND NOT EXISTS previousStep creating/opening project
+# THEN Warning("Ensure project is created before writing code")
+
+# Rule 10: Save before run
+# IF Step(?s1) AND hasAction(?s1, :key_press) AND keyName(?s1, "f5")
+#    AND previousStep(?s1, ?s0) AND NOT hasAction(?s0, :key_combination)
+# THEN Warning("Consider saving file (Ctrl+S) before running")
+
+# Rule 11: Consecutive clicks without wait
+# IF Step(?s1) AND hasAction(?s1, :click) AND nextStep(?s1, ?s2) AND hasAction(?s2, :click)
+#    AND NOT EXISTS Step between with wait action
+# THEN Warning("Consider adding wait between consecutive clicks")
+
+# Rule 12: Maximum step order validation
+# IF Step(?s) AND stepOrder(?s, ?order) AND ?order > 100
+# THEN Warning("Task has more than 100 steps, consider breaking into subtasks")
+
+# ============================================================
+# COMMON KEYBOARD SHORTCUTS
+# ============================================================
+
+:ShortcutCtrlC rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+C"@en ;
+    rdfs:comment "Copy shortcut"@en ;
+    :keyName "ctrl+c" .
+
+:ShortcutCtrlV rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+V"@en ;
+    rdfs:comment "Paste shortcut"@en ;
+    :keyName "ctrl+v" .
+
+:ShortcutCtrlX rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+X"@en ;
+    rdfs:comment "Cut shortcut"@en ;
+    :keyName "ctrl+x" .
+
+:ShortcutCtrlZ rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+Z"@en ;
+    rdfs:comment "Undo shortcut"@en ;
+    :keyName "ctrl+z" .
+
+:ShortcutCtrlY rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+Y"@en ;
+    rdfs:comment "Redo shortcut"@en ;
+    :keyName "ctrl+y" .
+
+:ShortcutCtrlS rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+S"@en ;
+    rdfs:comment "Save shortcut"@en ;
+    :keyName "ctrl+s" .
+
+:ShortcutCtrlA rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+A"@en ;
+    rdfs:comment "Select all shortcut"@en ;
+    :keyName "ctrl+a" .
+
+:ShortcutCtrlF rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+F"@en ;
+    rdfs:comment "Find shortcut"@en ;
+    :keyName "ctrl+f" .
+
+:ShortcutCtrlH rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+H"@en ;
+    rdfs:comment "Find and replace shortcut"@en ;
+    :keyName "ctrl+h" .
+
+:ShortcutCtrlN rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+N"@en ;
+    rdfs:comment "New file/window shortcut"@en ;
+    :keyName "ctrl+n" .
+
+:ShortcutCtrlO rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+O"@en ;
+    rdfs:comment "Open file shortcut"@en ;
+    :keyName "ctrl+o" .
+
+:ShortcutCtrlW rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+W"@en ;
+    rdfs:comment "Close tab/window shortcut"@en ;
+    :keyName "ctrl+w" .
+
+:ShortcutCtrlT rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+T"@en ;
+    rdfs:comment "New tab shortcut"@en ;
+    :keyName "ctrl+t" .
+
+:ShortcutCtrlShiftS rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+Shift+S"@en ;
+    rdfs:comment "Save as shortcut"@en ;
+    :keyName "ctrl+shift+s" .
+
+:ShortcutCtrlShiftP rdf:type :KeyCombinationAction ;
+    rdfs:label "Ctrl+Shift+P"@en ;
+    rdfs:comment "Command palette (VS Code)"@en ;
+    :keyName "ctrl+shift+p" .
+
+:ShortcutAltTab rdf:type :KeyCombinationAction ;
+    rdfs:label "Alt+Tab"@en ;
+    rdfs:comment "Switch application shortcut"@en ;
+    :keyName "alt+tab" .
+
+:ShortcutAltF4 rdf:type :KeyCombinationAction ;
+    rdfs:label "Alt+F4"@en ;
+    rdfs:comment "Close application shortcut"@en ;
+    :keyName "alt+f4" .
+
+:ShortcutF5 rdf:type :KeyPressAction ;
+    rdfs:label "F5"@en ;
+    rdfs:comment "Run/Debug or Refresh"@en ;
+    :keyName "f5" .
+
+:ShortcutF11 rdf:type :KeyPressAction ;
+    rdfs:label "F11"@en ;
+    rdfs:comment "Fullscreen toggle"@en ;
+    :keyName "f11" .
+
+:ShortcutF12 rdf:type :KeyPressAction ;
+    rdfs:label "F12"@en ;
+    rdfs:comment "Developer tools (browser)"@en ;
+    :keyName "f12" .
+
+:ShortcutEscape rdf:type :KeyPressAction ;
+    rdfs:label "Escape"@en ;
+    rdfs:comment "Cancel/Close action"@en ;
+    :keyName "escape" .
+
+:ShortcutEnter rdf:type :KeyPressAction ;
+    rdfs:label "Enter"@en ;
+    rdfs:comment "Confirm/Submit action"@en ;
+    :keyName "enter" .
+
+:ShortcutTab rdf:type :KeyPressAction ;
+    rdfs:label "Tab"@en ;
+    rdfs:comment "Tab/Next field"@en ;
+    :keyName "tab" .
+
+:ShortcutDelete rdf:type :KeyPressAction ;
+    rdfs:label "Delete"@en ;
+    rdfs:comment "Delete action"@en ;
+    :keyName "delete" .
+
+:ShortcutBackspace rdf:type :KeyPressAction ;
+    rdfs:label "Backspace"@en ;
+    rdfs:comment "Backspace action"@en ;
+    :keyName "backspace" .
+
+# ============================================================
+# APPLICATION WORKFLOWS - Common Patterns
+# ============================================================
+
+# Visual Studio New Project Workflow
+:VSNewProjectWorkflow rdf:type :Task ;
+    rdfs:label "Visual Studio New Project Workflow"@en ;
+    rdfs:comment "Standard workflow for creating new project in Visual Studio"@en ;
+    :requiresApplication :VisualStudio ;
+    :taskGoal "Create a new project in Visual Studio" .
+
+# VS Code New File Workflow
+:VSCodeNewFileWorkflow rdf:type :Task ;
+    rdfs:label "VS Code New File Workflow"@en ;
+    rdfs:comment "Standard workflow for creating new file in VS Code"@en ;
+    :requiresApplication :VSCode ;
+    :taskGoal "Create a new file in VS Code" .
+
+# Browser YouTube Workflow
+:YouTubeSearchWorkflow rdf:type :Task ;
+    rdfs:label "YouTube Search Workflow"@en ;
+    rdfs:comment "Standard workflow for searching and playing video on YouTube"@en ;
+    :usesService :YouTube ;
+    :taskGoal "Search and play video on YouTube" .
+
+# Docker Container Workflow
+:DockerRunContainerWorkflow rdf:type :Task ;
+    rdfs:label "Docker Run Container Workflow"@en ;
+    rdfs:comment "Standard workflow for running Docker container"@en ;
+    :requiresApplication :DockerDesktop ;
+    :taskGoal "Run a Docker container" .
+
+# ============================================================
+# PROGRAMMING LANGUAGES
+# ============================================================
+
+:ProgrammingLanguage rdf:type owl:Class ;
+    rdfs:label "Programming Language"@en ;
+    rdfs:comment "A programming language"@en .
+
+:CSharp rdf:type :ProgrammingLanguage ;
+    rdfs:label "C#"@en ;
+    rdfs:comment "C# programming language"@en .
+
+:Java rdf:type :ProgrammingLanguage ;
+    rdfs:label "Java"@en ;
+    rdfs:comment "Java programming language"@en .
+
+:Python rdf:type :ProgrammingLanguage ;
+    rdfs:label "Python"@en ;
+    rdfs:comment "Python programming language"@en .
+
+:JavaScript rdf:type :ProgrammingLanguage ;
+    rdfs:label "JavaScript"@en ;
+    rdfs:comment "JavaScript programming language"@en .
+
+:TypeScript rdf:type :ProgrammingLanguage ;
+    rdfs:label "TypeScript"@en ;
+    rdfs:comment "TypeScript programming language"@en .
+
+:CPlusPlus rdf:type :ProgrammingLanguage ;
+    rdfs:label "C++"@en ;
+    rdfs:comment "C++ programming language"@en .
+
+:C rdf:type :ProgrammingLanguage ;
+    rdfs:label "C"@en ;
+    rdfs:comment "C programming language"@en .
+
+:Go rdf:type :ProgrammingLanguage ;
+    rdfs:label "Go"@en ;
+    rdfs:comment "Go programming language"@en .
+
+:Rust rdf:type :ProgrammingLanguage ;
+    rdfs:label "Rust"@en ;
+    rdfs:comment "Rust programming language"@en .
+
+:PHP rdf:type :ProgrammingLanguage ;
+    rdfs:label "PHP"@en ;
+    rdfs:comment "PHP programming language"@en .
+
+:Ruby rdf:type :ProgrammingLanguage ;
+    rdfs:label "Ruby"@en ;
+    rdfs:comment "Ruby programming language"@en .
+
+:Swift rdf:type :ProgrammingLanguage ;
+    rdfs:label "Swift"@en ;
+    rdfs:comment "Swift programming language"@en .
+
+:Kotlin rdf:type :ProgrammingLanguage ;
+    rdfs:label "Kotlin"@en ;
+    rdfs:comment "Kotlin programming language"@en .
+
+:SQL rdf:type :ProgrammingLanguage ;
+    rdfs:label "SQL"@en ;
+    rdfs:comment "SQL query language"@en .
+
+:HTML rdf:type :ProgrammingLanguage ;
+    rdfs:label "HTML"@en ;
+    rdfs:comment "HTML markup language"@en .
+
+:CSS rdf:type :ProgrammingLanguage ;
+    rdfs:label "CSS"@en ;
+    rdfs:comment "CSS stylesheet language"@en .
+
+# ============================================================
+# IDE-LANGUAGE COMPATIBILITY
+# ============================================================
+
+:supportsLanguage rdf:type owl:ObjectProperty ;
+    rdfs:domain :IDE ;
+    rdfs:range :ProgrammingLanguage ;
+    rdfs:label "supports language"@en ;
+    rdfs:comment "IDE supports this programming language"@en .
+
+:VisualStudio :supportsLanguage :CSharp, :CPlusPlus, :Python, :JavaScript, :TypeScript .
+:VSCode :supportsLanguage :JavaScript, :TypeScript, :Python, :Java, :CSharp, :Go, :Rust, :PHP, :Ruby .
+:Eclipse :supportsLanguage :Java, :CPlusPlus, :PHP, :Python .
+:IntelliJIDEA :supportsLanguage :Java, :Kotlin, :Scala, :JavaScript .
+:PyCharm :supportsLanguage :Python, :JavaScript, :TypeScript .
+:WebStorm :supportsLanguage :JavaScript, :TypeScript, :HTML, :CSS .
+:AndroidStudio :supportsLanguage :Java, :Kotlin .
+:XCode :supportsLanguage :Swift, :ObjectiveC .
+
+# ============================================================
+# FILE TYPES
+# ============================================================
+
+:FileType rdf:type owl:Class ;
+    rdfs:label "File Type"@en ;
+    rdfs:comment "Type of file"@en .
+
+:SourceCodeFile rdf:type :FileType ;
+    rdfs:label "Source Code File"@en .
+
+:ConfigurationFile rdf:type :FileType ;
+    rdfs:label "Configuration File"@en .
+
+:DocumentFile rdf:type :FileType ;
+    rdfs:label "Document File"@en .
+
+:ImageFile rdf:type :FileType ;
+    rdfs:label "Image File"@en .
+
+:VideoFile rdf:type :FileType ;
+    rdfs:label "Video File"@en .
+
+# File extensions
+:CSFile rdf:type :SourceCodeFile ;
+    rdfs:label ".cs"@en ;
+    rdfs:comment "C# source file"@en .
+
+:JavaFile rdf:type :SourceCodeFile ;
+    rdfs:label ".java"@en ;
+    rdfs:comment "Java source file"@en .
+
+:PythonFile rdf:type :SourceCodeFile ;
+    rdfs:label ".py"@en ;
+    rdfs:comment "Python source file"@en .
+
+:JavaScriptFile rdf:type :SourceCodeFile ;
+    rdfs:label ".js"@en ;
+    rdfs:comment "JavaScript source file"@en .
+
+:TypeScriptFile rdf:type :SourceCodeFile ;
+    rdfs:label ".ts"@en ;
+    rdfs:comment "TypeScript source file"@en .
+
+:HTMLFile rdf:type :SourceCodeFile ;
+    rdfs:label ".html"@en ;
+    rdfs:comment "HTML file"@en .
+
+:CSSFile rdf:type :SourceCodeFile ;
+    rdfs:label ".css"@en ;
+    rdfs:comment "CSS stylesheet file"@en .
+
+:JSONFile rdf:type :ConfigurationFile ;
+    rdfs:label ".json"@en ;
+    rdfs:comment "JSON file"@en .
+
+:XMLFile rdf:type :ConfigurationFile ;
+    rdfs:label ".xml"@en ;
+    rdfs:comment "XML file"@en .
+
+:YAMLFile rdf:type :ConfigurationFile ;
+    rdfs:label ".yaml"@en ;
+    rdfs:comment "YAML file"@en .
+
+:DockerFile rdf:type :ConfigurationFile ;
+    rdfs:label "Dockerfile"@en ;
+    rdfs:comment "Docker configuration file"@en .
+
+:TXTFile rdf:type :DocumentFile ;
+    rdfs:label ".txt"@en ;
+    rdfs:comment "Plain text file"@en .
+
+:MDFile rdf:type :DocumentFile ;
+    rdfs:label ".md"@en ;
+    rdfs:comment "Markdown file"@en .
+
+# ============================================================
+# OPERATING SYSTEMS
+# ============================================================
+
+:OperatingSystem rdf:type owl:Class ;
+    rdfs:label "Operating System"@en ;
+    rdfs:comment "Computer operating system"@en .
+
+:Windows rdf:type :OperatingSystem ;
+    rdfs:label "Windows"@en ;
+    rdfs:comment "Microsoft Windows operating system"@en .
+
+:Windows10 rdf:type :OperatingSystem ;
+    rdfs:label "Windows 10"@en ;
+    rdfs:comment "Microsoft Windows 10"@en .
+
+:Windows11 rdf:type :OperatingSystem ;
+    rdfs:label "Windows 11"@en ;
+    rdfs:comment "Microsoft Windows 11"@en .
+
+:MacOS rdf:type :OperatingSystem ;
+    rdfs:label "macOS"@en ;
+    rdfs:comment "Apple macOS operating system"@en .
+
+:Linux rdf:type :OperatingSystem ;
+    rdfs:label "Linux"@en ;
+    rdfs:comment "Linux operating system"@en .
+
+:Ubuntu rdf:type :OperatingSystem ;
+    rdfs:label "Ubuntu"@en ;
+    rdfs:comment "Ubuntu Linux distribution"@en .
+
+# OS compatibility
+:runsOn rdf:type owl:ObjectProperty ;
+    rdfs:domain :Application ;
+    rdfs:range :OperatingSystem ;
+    rdfs:label "runs on"@en ;
+    rdfs:comment "Application runs on this operating system"@en .
+
+:VisualStudio :runsOn :Windows .
+:VSCode :runsOn :Windows, :MacOS, :Linux .
+:XCode :runsOn :MacOS .
+:Notepad :runsOn :Windows .
+:ChromeBrowser :runsOn :Windows, :MacOS, :Linux .
+:DockerDesktop :runsOn :Windows, :MacOS, :Linux .
+
+# ============================================================
+# ERROR TYPES
+# ============================================================
+
+:ErrorType rdf:type owl:Class ;
+    rdfs:label "Error Type"@en ;
+    rdfs:comment "Type of error that can occur during execution"@en .
+
+:ElementNotFoundError rdf:type :ErrorType ;
+    rdfs:label "Element Not Found Error"@en ;
+    rdfs:comment "Target UI element could not be found"@en .
+
+:ApplicationNotFoundError rdf:type :ErrorType ;
+    rdfs:label "Application Not Found Error"@en ;
+    rdfs:comment "Application could not be found or launched"@en .
+
+:TimeoutError rdf:type :ErrorType ;
+    rdfs:label "Timeout Error"@en ;
+    rdfs:comment "Operation timed out"@en .
+
+:PermissionError rdf:type :ErrorType ;
+    rdfs:label "Permission Error"@en ;
+    rdfs:comment "Insufficient permissions to perform action"@en .
+
+:NetworkError rdf:type :ErrorType ;
+    rdfs:label "Network Error"@en ;
+    rdfs:comment "Network connectivity issue"@en .
+
+:ValidationError rdf:type :ErrorType ;
+    rdfs:label "Validation Error"@en ;
+    rdfs:comment "Input validation failed"@en .
+
+# ============================================================
+# METADATA
+# ============================================================
+
+:createdAt rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "created at"@en ;
+    rdfs:comment "Timestamp when task was created"@en .
+
+:completedAt rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:dateTime ;
+    rdfs:label "completed at"@en ;
+    rdfs:comment "Timestamp when task was completed"@en .
+
+:executionDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:integer ;
+    rdfs:label "execution duration"@en ;
+    rdfs:comment "Total execution time in seconds"@en .
+
+:videoPath rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "video path"@en ;
+    rdfs:comment "Path to recorded video file"@en .
+
+:screenshotPath rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "screenshot path"@en ;
+    rdfs:comment "Path to screenshot taken during step"@en .
+
+:errorMessage rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "error message"@en ;
+    rdfs:comment "Error message if step failed"@en .
+
+:hasError rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :ErrorType ;
+    rdfs:label "has error"@en ;
+    rdfs:comment "Error that occurred during step execution"@en .
