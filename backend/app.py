@@ -7,6 +7,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
+from src.ontology import OntologyManager, PlanValidator, OntologyExecutor
 
 load_dotenv()
 
@@ -22,6 +23,9 @@ VIDEOS_DIR = os.path.abspath("videos")
 TEMP_DIR = os.path.abspath("temp")
 os.makedirs(VIDEOS_DIR, exist_ok=True)
 os.makedirs(TEMP_DIR, exist_ok=True)
+
+ONTOLOGY_DIR = os.path.abspath("ontology_files")
+os.makedirs(ONTOLOGY_DIR, exist_ok=True)
 
 # Job storage
 jobs = {}
@@ -106,37 +110,121 @@ def generate_plan_task(job_id: str, instruction:  str):
         traceback.print_exc()
 
 
+# def execute_plan_task(job_id: str):
+#     """Izvrsavanje plana, tj. snimanje"""
+#     try:
+#         jobs[job_id]["status"] = JobStatus.RECORDING
+#         jobs[job_id]["message"] = "Starting recording and execution"
+        
+#         plan_dict = load_task_plan(job_id)
+#         if not plan_dict:
+#             jobs[job_id]["status"] = JobStatus.FAILED
+#             jobs[job_id]["error"] = "Plan not found"
+#             return
+        
+#         # Privremeno cuvanje plana
+#         plan_path = os. path.join(TEMP_DIR, f"task_plan_{job_id}.json")
+        
+#         # Executor za snimanje
+#         executor = Executor(slow_mode=True, verify_steps=False, record_video=True)
+        
+#         # Postavljanje imena videa
+#         video_name = f"tutorial_{job_id}"
+        
+#         # Izvrsavanje
+#         jobs[job_id]["status"] = JobStatus.EXECUTING
+#         jobs[job_id]["message"] = "Executing steps"
+        
+#         results = executor.execute_from_json(plan_path, video_name=video_name)
+        
+#         video_path = results.get("video_path")
+        
+#         if video_path and os.path.exists(video_path):
+#             # Premjestanje videa u videos folder ukoliko nije tamo
+#             video_filename = os.path.basename(video_path)
+#             final_video_path = os.path.join(VIDEOS_DIR, video_filename)
+            
+#             if video_path != final_video_path:
+#                 import shutil
+#                 shutil.move(video_path, final_video_path)
+#                 video_path = final_video_path
+            
+#             jobs[job_id]["status"] = JobStatus.COMPLETED
+#             jobs[job_id]["message"] = "Video successfully created!"
+#             jobs[job_id]["video_filename"] = os.path.basename(video_path)
+#             jobs[job_id]["video_url"] = f"/api/videos/{os.path.basename(video_path)}"
+#             jobs[job_id]["results"] = {
+#                 "successful_steps": results.get("successful_steps", 0),
+#                 "failed_steps": results.get("failed_steps", 0),
+#                 "total_steps": results.get("total_steps", 0)
+#             }
+#         else:
+#             jobs[job_id]["status"] = JobStatus. FAILED
+#             jobs[job_id]["error"] = "Video not created"
+            
+#     except Exception as e:
+#         jobs[job_id]["status"] = JobStatus.FAILED
+#         jobs[job_id]["error"] = str(e)
+#         print(f"[ERROR] execute_plan_task: {e}")
+#         import traceback
+#         traceback.print_exc()
+
 def execute_plan_task(job_id: str):
-    """Izvrsavanje plana, tj. snimanje"""
+    """Izvrsavanje plana ukljucujuci snimanje"""
     try:
         jobs[job_id]["status"] = JobStatus.RECORDING
         jobs[job_id]["message"] = "Starting recording and execution"
         
+        # Ucitaj plan
         plan_dict = load_task_plan(job_id)
         if not plan_dict:
             jobs[job_id]["status"] = JobStatus.FAILED
             jobs[job_id]["error"] = "Plan not found"
             return
         
-        # Privremeno cuvanje plana
-        plan_path = os. path.join(TEMP_DIR, f"task_plan_{job_id}.json")
+        plan_path = os.path.join(TEMP_DIR, f"task_plan_{job_id}.json")
         
-        # Executor za snimanje
+        # Kreiraj executor
         executor = Executor(slow_mode=True, verify_steps=False, record_video=True)
         
-        # Postavljanje imena videa
         video_name = f"tutorial_{job_id}"
         
-        # Izvrsavanje
         jobs[job_id]["status"] = JobStatus.EXECUTING
-        jobs[job_id]["message"] = "Executing steps"
+        jobs[job_id]["message"] = "Executing steps..."
         
         results = executor.execute_from_json(plan_path, video_name=video_name)
         
+        # Cuvanje entologije
+        try:
+            from src.ontology import OntologyManager, PlanMapper
+            
+            ontology = OntologyManager()
+            mapper = PlanMapper(ontology)
+            
+            # Mapiraj plan na ontologiju
+            task_uri = mapper.map_plan_to_ontology(plan_dict)
+            
+            # Azuriraj stanja koraka
+            steps = mapper.get_steps_from_ontology(task_uri)
+            for i, step in enumerate(steps):
+                if i < len(results.get("steps", [])):
+                    step_result = results["steps"][i]
+                    state = "completed" if step_result.get("success") else "failed"
+                    mapper.update_step_state(step["uri"], state)
+            
+            # Sacuvaj ontologiju
+            ontology_path = os.path.join(ONTOLOGY_DIR, f"execution_{job_id}.owl")
+            ontology.save_ontology(ontology_path)
+            jobs[job_id]["ontology_path"] = f"/api/ontology/{job_id}"
+            
+        except Exception as ont_error:
+            print(f"[WARN] Error while saving ontology: {ont_error}")
+        # ═══════════════════════════════════════════════════════════
+        
+        # Provjeri rezultat videa
         video_path = results.get("video_path")
         
         if video_path and os.path.exists(video_path):
-            # Premjestanje videa u videos folder ukoliko nije tamo
             video_filename = os.path.basename(video_path)
             final_video_path = os.path.join(VIDEOS_DIR, video_filename)
             
@@ -155,7 +243,7 @@ def execute_plan_task(job_id: str):
                 "total_steps": results.get("total_steps", 0)
             }
         else:
-            jobs[job_id]["status"] = JobStatus. FAILED
+            jobs[job_id]["status"] = JobStatus.FAILED
             jobs[job_id]["error"] = "Video not created"
             
     except Exception as e:
@@ -176,6 +264,29 @@ def health_check():
         "timestamp": datetime. now().isoformat()
     })
 
+@app.route("/api/validate-plan/<job_id>", methods=["GET"])
+def validate_plan(job_id: str):
+    """Validiraj plan prema ontologiji"""
+    if job_id not in jobs:
+        return jsonify({"error": "Job not found"}), 404
+    
+    plan = load_task_plan(job_id)
+    if not plan:
+        return jsonify({"error": "Plan not found"}), 404
+    
+    validator = PlanValidator()
+    report = validator.get_validation_report(plan)
+    
+    return jsonify(report)
+
+
+@app.route("/api/ontology/actions", methods=["GET"])
+def get_ontology_actions():
+    """Dobij validne akcije iz ontologije"""
+    ontology = OntologyManager()
+    actions = ontology.get_valid_actions()
+    
+    return jsonify({"actions": actions})
 
 @app.route("/api/generate-plan", methods=["POST"])
 def generate_plan():
@@ -297,7 +408,7 @@ def update_task_plan(job_id: str):
     data = request.get_json()
     
     if not data: 
-        return jsonify({"error": "Nedostaje task plan"}), 400
+        return jsonify({"error": "Task plan missing"}), 400
     
     save_task_plan(job_id, data)
     jobs[job_id]["task_plan"] = data

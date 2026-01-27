@@ -1,0 +1,399 @@
+@prefix : <http://example.org/computer-use#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix process: <http://www.daml.org/services/owl-s/1.2/Process.owl#> .
+
+# ============================================================
+# ONTOLOGY DECLARATION
+# ============================================================
+
+<http://example.org/computer-use> rdf:type owl:Ontology ;
+    rdfs:label "Computer Use Ontology"@en ;
+    rdfs:comment "Ontologija za automatizaciju desktop aplikacija i kreiranje video uputstava"@sr .
+
+# ============================================================
+# CLASSES - Osnovne klase
+# ============================================================
+
+# === TASK (Kompozitni proces) ===
+:Task rdf:type owl:Class ;
+    rdfs:subClassOf process:CompositeProcess ;
+    rdfs:label "Task"@en ;
+    rdfs:comment "Kompletan zadatak koji se sastoji od vise koraka"@sr .
+
+# === STEP (Atomični proces) ===
+:Step rdf:type owl:Class ;
+    rdfs:subClassOf process:AtomicProcess ;
+    rdfs:label "Step"@en ;
+    rdfs:comment "Pojedinacni korak u izvrsavanju zadatka"@sr .
+
+# === ACTION TYPES ===
+:Action rdf:type owl:Class ;
+    rdfs:label "Action"@en ;
+    rdfs:comment "Tip akcije koja se moze izvrsiti"@sr .
+
+:ClickAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Click Action"@en ;
+    rdfs:comment "Akcija klika misem"@sr .
+
+:DoubleClickAction rdf:type owl:Class ;
+    rdfs:subClassOf :ClickAction ;
+    rdfs:label "Double Click Action"@en .
+
+:RightClickAction rdf:type owl:Class ;
+    rdfs:subClassOf :ClickAction ;
+    rdfs:label "Right Click Action"@en .
+
+:TypeTextAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Type Text Action"@en ;
+    rdfs:comment "Akcija unosa teksta"@sr .
+
+:KeyPressAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Key Press Action"@en ;
+    rdfs:comment "Pritisak na taster"@sr .
+
+:KeyCombinationAction rdf:type owl:Class ;
+    rdfs:subClassOf :KeyPressAction ;
+    rdfs:label "Key Combination Action"@en ;
+    rdfs:comment "Kombinacija tastera (Ctrl+C, Alt+F4, itd.)"@sr .
+
+:WaitAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Wait Action"@en ;
+    rdfs:comment "Cekanje odredjeno vrijeme"@sr .
+
+:OpenApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Open Application Action"@en ;
+    rdfs:comment "Otvaranje aplikacije"@sr .
+
+:CloseApplicationAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Close Application Action"@en ;
+    rdfs:comment "Zatvaranje aplikacije"@sr .
+
+:ScrollAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Scroll Action"@en ;
+    rdfs:comment "Skrolovanje"@sr .
+
+:MoveMouseAction rdf:type owl:Class ;
+    rdfs:subClassOf :Action ;
+    rdfs:label "Move Mouse Action"@en ;
+    rdfs:comment "Pomjeranje misa"@sr .
+
+# === UI ELEMENTS ===
+:UIElement rdf:type owl:Class ;
+    rdfs:label "UI Element"@en ;
+    rdfs:comment "Element korisnickog interfejsa"@sr .
+
+:Button rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Button"@en .
+
+:TextField rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Text Field"@en .
+
+:MenuItem rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Menu Item"@en .
+
+:Link rdf:type owl:Class ;
+    rdfs:subClassOf :UIElement ;
+    rdfs:label "Link"@en .
+
+:SearchBox rdf:type owl:Class ;
+    rdfs:subClassOf :TextField ;
+    rdfs:label "Search Box"@en .
+
+:AddressBar rdf:type owl:Class ;
+    rdfs:subClassOf :TextField ;
+    rdfs:label "Address Bar"@en ;
+    rdfs:comment "Adresna traka u browseru"@sr .
+
+# === APPLICATIONS ===
+:Application rdf:type owl:Class ;
+    rdfs:label "Application"@en ;
+    rdfs:comment "Desktop aplikacija"@sr .
+
+:Browser rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Browser"@en .
+
+:IDE rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "IDE"@en .
+
+:TextEditor rdf:type owl:Class ;
+    rdfs:subClassOf :Application ;
+    rdfs:label "Text Editor"@en .
+
+# === EXECUTION STATE ===
+:ExecutionState rdf:type owl:Class ;
+    rdfs:label "Execution State"@en ;
+    rdfs:comment "Stanje izvrsavanja koraka"@sr .
+
+:PendingState rdf:type owl:Class ;
+    rdfs:subClassOf :ExecutionState ;
+    rdfs:label "Pending"@en .
+
+:ExecutingState rdf:type owl:Class ;
+    rdfs:subClassOf :ExecutionState ;
+    rdfs:label "Executing"@en .
+
+:CompletedState rdf:type owl:Class ;
+    rdfs:subClassOf :ExecutionState ;
+    rdfs:label "Completed"@en .
+
+:FailedState rdf:type owl:Class ;
+    rdfs:subClassOf :ExecutionState ;
+    rdfs:label "Failed"@en .
+
+:SkippedState rdf:type owl:Class ;
+    rdfs:subClassOf :ExecutionState ;
+    rdfs:label "Skipped"@en .
+
+# ============================================================
+# OBJECT PROPERTIES
+# ============================================================
+
+:hasStep rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Step ;
+    rdfs:label "has step"@en ;
+    rdfs:comment "Task ima korak"@sr .
+
+:hasAction rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :Action ;
+    rdfs:label "has action"@en ;
+    rdfs:comment "Korak ima akciju"@sr .
+
+:hasTarget rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :UIElement ;
+    rdfs:label "has target"@en ;
+    rdfs:comment "Korak ima ciljni element"@sr .
+
+:requiresApplication rdf:type owl:ObjectProperty ;
+    rdfs:domain :Task ;
+    rdfs:range :Application ;
+    rdfs:label "requires application"@en ;
+    rdfs:comment "Task zahtijeva aplikaciju"@sr .
+
+:opensApplication rdf:type owl:ObjectProperty ;
+    rdfs:domain :OpenApplicationAction ;
+    rdfs:range :Application ;
+    rdfs:label "opens application"@en .
+
+:hasState rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :ExecutionState ;
+    rdfs:label "has state"@en ;
+    rdfs:comment "Korak ima stanje izvrsavanja"@sr .
+
+:nextStep rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :Step ;
+    rdfs:label "next step"@en ;
+    rdfs:comment "Sledecii korak u sekvenci"@sr .
+
+:previousStep rdf:type owl:ObjectProperty ;
+    owl:inverseOf :nextStep ;
+    rdfs:label "previous step"@en .
+
+:hasPrecondition rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :ExecutionState ;
+    rdfs:label "has precondition"@en ;
+    rdfs:comment "Preduslov za izvrsavanje koraka"@sr .
+
+:hasPostcondition rdf:type owl:ObjectProperty ;
+    rdfs:domain :Step ;
+    rdfs:range :ExecutionState ;
+    rdfs:label "has postcondition"@en ;
+    rdfs:comment "Stanje nakon izvrsavanja koraka"@sr .
+
+:partOf rdf:type owl:ObjectProperty ;
+    rdfs:domain :UIElement ;
+    rdfs:range :Application ;
+    rdfs:label "part of"@en ;
+    rdfs:comment "Element je dio aplikacije"@sr .
+
+# ============================================================
+# DATA PROPERTIES
+# ============================================================
+
+:stepOrder rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "step order"@en ;
+    rdfs:comment "Redni broj koraka"@sr .
+
+:stepDescription rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "step description"@en .
+
+:expectedResult rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "expected result"@en .
+
+:targetName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "target name"@en ;
+    rdfs:comment "Ime ciljnog elementa"@sr .
+
+:inputValue rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "input value"@en ;
+    rdfs:comment "Vrijednost za unos (tekst, URL, itd.)"@sr .
+
+:waitDuration rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:integer ;
+    rdfs:label "wait duration"@en ;
+    rdfs:comment "Trajanje cekanja u sekundama"@sr .
+
+:isOptional rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:boolean ;
+    rdfs:label "is optional"@en ;
+    rdfs:comment "Da li je korak opcionalan"@sr .
+
+:taskGoal rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "task goal"@en .
+
+:originalInstruction rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "original instruction"@en .
+
+:successCriteria rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Task ;
+    rdfs:range xsd:string ;
+    rdfs:label "success criteria"@en .
+
+:applicationName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Application ;
+    rdfs:range xsd:string ;
+    rdfs:label "application name"@en .
+
+:keyName rdf:type owl:DatatypeProperty ;
+    rdfs:domain :Step ;
+    rdfs:range xsd:string ;
+    rdfs:label "key name"@en ;
+    rdfs:comment "Ime tastera za key_press akciju"@sr .
+
+# ============================================================
+# INDIVIDUALS - Poznate aplikacije
+# ============================================================
+
+:OperaBrowser rdf:type :Browser ;
+    rdfs:label "Opera"@en ;
+    :applicationName "Opera" .
+
+:ChromeBrowser rdf:type :Browser ;
+    rdfs:label "Google Chrome"@en ;
+    :applicationName "Chrome" .
+
+:FirefoxBrowser rdf:type :Browser ;
+    rdfs:label "Mozilla Firefox"@en ;
+    :applicationName "Firefox" .
+
+:EdgeBrowser rdf:type :Browser ;
+    rdfs:label "Microsoft Edge"@en ;
+    :applicationName "Edge" .
+
+:VisualStudio rdf:type :IDE ;
+    rdfs:label "Visual Studio"@en ;
+    :applicationName "Visual Studio" .
+
+:VSCode rdf:type :IDE ;
+    rdfs:label "Visual Studio Code"@en ;
+    :applicationName "VS Code" .
+
+:Eclipse rdf:type :IDE ;
+    rdfs:label "Eclipse"@en ;
+    :applicationName "Eclipse" .
+
+:Notepad rdf:type :TextEditor ;
+    rdfs:label "Notepad"@en ;
+    :applicationName "Notepad" .
+
+:NotepadPlusPlus rdf:type :TextEditor ;
+    rdfs:label "Notepad++"@en ;
+    :applicationName "Notepad++" .
+
+# === Poznati UI elementi ===
+:YouTubeSearchBox rdf:type :SearchBox ;
+    rdfs:label "YouTube Search Box"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+
+:BrowserAddressBar rdf:type :AddressBar ;
+    rdfs:label "Browser Address Bar"@en ;
+    :partOf :ChromeBrowser, :OperaBrowser, :FirefoxBrowser, :EdgeBrowser .
+
+# === Akcije kao individuals ===
+:click rdf:type :ClickAction ;
+    rdfs:label "click"@en .
+
+:double_click rdf:type :DoubleClickAction ;
+    rdfs:label "double_click"@en .
+
+:right_click rdf:type :RightClickAction ;
+    rdfs:label "right_click"@en .
+
+:type_text rdf:type :TypeTextAction ;
+    rdfs:label "type_text"@en .
+
+:key_press rdf:type :KeyPressAction ;
+    rdfs:label "key_press"@en .
+
+:key_combination rdf:type :KeyCombinationAction ;
+    rdfs:label "key_combination"@en .
+
+:wait rdf:type :WaitAction ;
+    rdfs:label "wait"@en .
+
+:open_application rdf:type :OpenApplicationAction ;
+    rdfs:label "open_application"@en .
+
+:close_application rdf:type :CloseApplicationAction ;
+    rdfs:label "close_application"@en .
+
+:scroll rdf:type :ScrollAction ;
+    rdfs:label "scroll"@en .
+
+# ============================================================
+# SWRL-like RULES (as comments - implement in Python)
+# ============================================================
+
+# Rule 1: OpenApplication mora biti prvi korak ako aplikacija nije otvorena
+# IF Step(?s) AND hasAction(?s, :open_application) AND stepOrder(?s, ?order) AND ?order > 1
+#    AND NOT EXISTS previousStep(?s, ?prev) AND hasAction(?prev, :open_application)
+# THEN InvalidSequence(?s)
+
+# Rule 2: Wait nakon OpenApplication
+# IF Step(?s1) AND hasAction(?s1, :open_application) AND nextStep(?s1, ?s2)
+#    AND NOT hasAction(?s2, :wait)
+# THEN Warning("Preporučeno je dodati wait nakon open_application")
+
+# Rule 3: TypeText zahtijeva target
+# IF Step(?s) AND hasAction(?s, :type_text) AND NOT targetName(?s, ?target)
+# THEN InvalidStep(?s, "type_text zahtijeva target")
+
+# Rule 4: KeyPress zahtijeva key name
+# IF Step(?s) AND hasAction(?s, :key_press) AND NOT keyName(?s, ?key)
+# THEN InvalidStep(?s, "key_press zahtijeva ime tastera")
