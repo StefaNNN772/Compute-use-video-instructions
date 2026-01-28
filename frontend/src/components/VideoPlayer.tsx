@@ -12,7 +12,7 @@ interface Props {
   } | null;
 }
 
-const API_URL = 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_SERVER_API_URL;
 
 const VideoPlayer: React.FC<Props> = ({ 
   videoUrl, 

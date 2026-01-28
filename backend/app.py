@@ -3,6 +3,7 @@ import json
 import uuid
 import threading
 import time
+import re
 from datetime import datetime
 from flask import Flask, request, jsonify, send_file, send_from_directory
 from flask_cors import CORS
@@ -482,6 +483,145 @@ def list_jobs():
         "jobs": list(jobs.values())
     })
 
+
+@app.route("/api/tutorials", methods=["GET"])
+def get_all_tutorials():
+    """
+    Get all saved tutorials with their goals and video paths.
+    Returns list of tutorials with id, goal, video_url, created_at.
+    """
+    tutorials = []
+    
+    if os.path.exists(TEMP_DIR):
+        for filename in os.listdir(TEMP_DIR):
+            if filename.startswith("task_plan_") and filename.endswith(".json"):
+                # Extract job_id from filename (task_plan_{id}.json)
+                match = re.match(r"task_plan_(.+)\.json", filename)
+                if not match:
+                    continue
+                
+                job_id = match.group(1)
+                plan_path = os.path.join(TEMP_DIR, filename)
+                
+                try:
+                    with open(plan_path, "r", encoding="utf-8") as f:
+                        plan_data = json.load(f)
+                    
+                    # Check if video exists
+                    video_filename = f"tutorial_{job_id}.mp4"
+                    video_path = os.path.join(VIDEOS_DIR, video_filename)
+                    
+                    # Also check for .mkv
+                    if not os.path.exists(video_path):
+                        video_filename = f"tutorial_{job_id}.mkv"
+                        video_path = os.path.join(VIDEOS_DIR, video_filename)
+                    
+                    if os.path.exists(video_path):
+                        # Get file info
+                        file_stat = os.stat(video_path)
+                        file_size_mb = file_stat.st_size / (1024 * 1024)
+                        created_at = datetime.fromtimestamp(file_stat.st_mtime).isoformat()
+                        
+                        tutorials.append({
+                            "id": job_id,
+                            "goal": plan_data.get("goal", "Untitled Tutorial"),
+                            "original_instruction": plan_data.get("original_instruction", ""),
+                            "success_criteria": plan_data.get("success_criteria", ""),
+                            "steps_count": len(plan_data.get("steps", [])),
+                            "video_url": f"/api/videos/{video_filename}",
+                            "video_filename": video_filename,
+                            "download_url": f"/api/download/{video_filename}",
+                            "file_size_mb": round(file_size_mb, 2),
+                            "created_at": created_at
+                        })
+                        
+                except Exception as e:
+                    print(f"[WARN] Error reading {filename}: {e}")
+                    continue
+    
+    # Sort by created_at (newest first)
+    tutorials.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    
+    return jsonify({
+        "tutorials": tutorials,
+        "count": len(tutorials)
+    })
+
+
+@app.route("/api/tutorials/<tutorial_id>", methods=["GET"])
+def get_tutorial(tutorial_id: str):
+    """Get a specific tutorial by ID"""
+    plan_path = os.path.join(TEMP_DIR, f"task_plan_{tutorial_id}.json")
+    
+    if not os.path.exists(plan_path):
+        return jsonify({"error": "Tutorial not found"}), 404
+    
+    try:
+        with open(plan_path, "r", encoding="utf-8") as f:
+            plan_data = json.load(f)
+        
+        # Check for video
+        video_filename = f"tutorial_{tutorial_id}.mp4"
+        video_path = os.path.join(VIDEOS_DIR, video_filename)
+        
+        if not os.path.exists(video_path):
+            video_filename = f"tutorial_{tutorial_id}.mkv"
+            video_path = os.path.join(VIDEOS_DIR, video_filename)
+        
+        video_exists = os.path.exists(video_path)
+        
+        return jsonify({
+            "id": tutorial_id,
+            "goal": plan_data.get("goal", ""),
+            "original_instruction": plan_data.get("original_instruction", ""),
+            "success_criteria": plan_data.get("success_criteria", ""),
+            "prerequisites": plan_data.get("prerequisites", []),
+            "steps": plan_data.get("steps", []),
+            "video_url": f"/api/videos/{video_filename}" if video_exists else None,
+            "video_filename": video_filename if video_exists else None,
+            "download_url": f"/api/download/{video_filename}" if video_exists else None
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/tutorials/<tutorial_id>", methods=["DELETE"])
+def delete_tutorial(tutorial_id: str):
+    """Delete a tutorial and its video"""
+    plan_path = os.path.join(TEMP_DIR, f"task_plan_{tutorial_id}.json")
+    video_path_mp4 = os.path.join(VIDEOS_DIR, f"tutorial_{tutorial_id}.mp4")
+    video_path_mkv = os.path.join(VIDEOS_DIR, f"tutorial_{tutorial_id}.mkv")
+    
+    deleted = []
+    
+    # Delete plan file
+    if os.path.exists(plan_path):
+        os.remove(plan_path)
+        deleted.append("plan")
+    
+    # Delete video files
+    if os.path.exists(video_path_mp4):
+        os.remove(video_path_mp4)
+        deleted.append("video (mp4)")
+    
+    if os.path.exists(video_path_mkv):
+        os.remove(video_path_mkv)
+        deleted.append("video (mkv)")
+    
+    # Remove from jobs if exists
+    if tutorial_id in jobs:
+        del jobs[tutorial_id]
+        deleted.append("job")
+    
+    if not deleted:
+        return jsonify({"error": "Tutorial not found"}), 404
+    
+    return jsonify({
+        "success": True,
+        "message": f"Deleted: {', '.join(deleted)}",
+        "id": tutorial_id
+    })
 
 if __name__ == "__main__": 
     print("\n" + "=" * 60)

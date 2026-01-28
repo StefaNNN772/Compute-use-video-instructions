@@ -1,23 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import axios, { formToJSON } from 'axios';
 import VideoRequestForm from './components/VideoRequestForm';
 import TaskPlanEditor from './components/TaskPlanEditor';
 import VideoPlayer from './components/VideoPlayer';
 import StatusIndicator from './components/StatusIndicator';
+import TutorialLibrary from './components/TutorialLibrary';
 import { JobStatus, TaskPlan } from './types';
 import './App.css';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_SERVER_API_URL + '/api';
 
 function App() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [jobStatus, setJobStatus] = useState<JobStatus | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showLibrary, setShowLibrary] = useState(true);
   
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Polling za status
+  // Polling for status
   useEffect(() => {
     if (jobId && jobStatus && ! ['completed', 'failed', 'plan_ready'].includes(jobStatus. status)) {
       pollingRef.current = setInterval(async () => {
@@ -49,6 +51,7 @@ function App() {
     setError(null);
     setJobStatus(null);
     setJobId(null);
+    setShowLibrary(false);
     
     try {
       const response = await axios.post(`${API_URL}/generate-plan`, {
@@ -130,6 +133,7 @@ function App() {
     setJobStatus(null);
     setError(null);
     setIsLoading(false);
+    setShowLibrary(true);
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
     }
@@ -148,7 +152,7 @@ function App() {
       </header>
 
       <main className="main">
-        {/* Input forma koja se prikazuje samo ako nema aktivnog job-a */}
+        {/* Input form that is shown only if there is no active job */}
         {! jobId && (
           <VideoRequestForm
             onSubmit={handleSubmitInstruction}
@@ -156,7 +160,7 @@ function App() {
           />
         )}
 
-        {/* Greska */}
+        {/* Error */}
         {error && (
           <div className="error-banner">
             ❌ {error}
@@ -172,7 +176,7 @@ function App() {
           />
         )}
 
-        {/* Task Plan Editor koji se prikazuje kada je plan spreman */}
+        {/* Task Plan Editor that is shown when the plan is ready */}
         {jobStatus?.task_plan && jobStatus.status !== 'completed' && (
           <TaskPlanEditor
             taskPlan={jobStatus.task_plan}
@@ -182,7 +186,7 @@ function App() {
           />
         )}
 
-        {/* Video Player koji se prikazuje kada je video gotov */}
+        {/* Video Player that is shown when the video is ready */}
         {jobStatus?.status === 'completed' && jobStatus.video_url && (
           <>
             <VideoPlayer
@@ -193,7 +197,7 @@ function App() {
               results={jobStatus.results}
             />
             
-            {/* Prikazi i plan ispod videa za moguce izmjene */}
+            {/* Show plan below the video for possible edits */}
             {jobStatus.task_plan && (
               <TaskPlanEditor
                 taskPlan={jobStatus.task_plan}
@@ -203,6 +207,14 @@ function App() {
               />
             )}
           </>
+        )}
+        {showLibrary && !jobId && (
+          <TutorialLibrary />
+        )}
+
+        {/* Show library after completion too */}
+        {jobStatus?.status === 'completed' && (
+          <TutorialLibrary />
         )}
       </main>
 
